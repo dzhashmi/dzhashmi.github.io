@@ -1,20 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { 
-  Linkedin, Mail, Download, ChevronRight, Layers, 
-  Brain, PenTool, Puzzle, User, BookOpen, ArrowRight, Lightbulb,
-  GraduationCap, Briefcase, ExternalLink, Code, MonitorPlay, Trees,
+  Linkedin, Mail, Download, Layers, X,
+  Brain, PenTool, Puzzle, User, ArrowRight, Lightbulb,
+  GraduationCap, Briefcase, ExternalLink, Code, MonitorPlay,
   Cpu, Gamepad2, Leaf, Activity, Search, Wrench, CheckCircle, AlertTriangle
 } from 'lucide-react';
 
 /* ASSETS INSTRUCTIONS:
-   1. Place 'headshot.jpg' in public folder.
-   2. Place PDF in public folder.
-   3. Ensure your project images are named:
-      - mindmap.png, teamwork.jpg, c-sketch.png, pairwise.png
-      - proto1-render.png, proto2-head.png, proto3-mechanism.png
-      - risk-matrix.png, proto3-physical.png
-   4. Uncomment the 'src' lines in the 'galleryContent' array below when ready.
+   1. Place 'headshot.jpg' & PDF in public folder.
+   2. Ensure your project images are named correctly in the public folder.
 */
 
 // --- Configuration ---
@@ -29,7 +24,11 @@ const pageVariants = {
   out: { opacity: 0, y: -20, filter: 'blur(10px)' }
 };
 
-const pageTransition = { type: 'tween', ease: 'circOut', duration: 0.5 };
+const pageTransition = {
+  type: "tween",
+  ease: "anticipate",
+  duration: 0.5
+};
 
 const containerStagger = {
   hidden: { opacity: 0 },
@@ -41,161 +40,203 @@ const itemFadeUp = {
   show: { opacity: 1, y: 0 }
 };
 
+// --- Data: Moved outside component for performance ---
+const processSteps = [
+  {
+    id: 1,
+    title: "Problem Definition",
+    icon: <AlertTriangle size={24}/>,
+    short: "Identify the root cause.",
+    detail: (
+      <ul className="list-disc pl-4 space-y-1 text-slate-600">
+        <li><strong>Context:</strong> Lead service lines affect over 10M+ homes in North America.</li>
+        <li><strong>Core Issue:</strong> Excavation is disruptive and expensive.</li>
+        <li><strong>Goal:</strong> Identify toxic infrastructure without digging.</li>
+      </ul>
+    )
+  },
+  {
+    id: 2,
+    title: "Study & Clarify",
+    icon: <Search size={24}/>,
+    short: "Researching constraints.",
+    detail: (
+      <ul className="list-disc pl-4 space-y-1 text-slate-600">
+        <li><strong>Constraints:</strong> Remote, Portable, Safe, &lt;$100.</li>
+        <li><strong>Stakeholders:</strong> Homeowners, Municipal Councils, Health Canada.</li>
+        <li><strong>Research:</strong> Water sampling is slow; excavation is intrusive.</li>
+      </ul>
+    )
+  },
+  {
+    id: 3,
+    title: "Generate Solutions",
+    icon: <Lightbulb size={24}/>,
+    short: "Ideation & C-Sketch.",
+    detail: (
+      <ul className="list-disc pl-4 space-y-1 text-slate-600">
+        <li><strong>Methods:</strong> Brainstorming, SCAMPER, C-Sketch.</li>
+        <li><strong>Output:</strong> 39 distinct ideas (e.g., Neural Networks, X-Ray Lawnmowers).</li>
+        <li><strong>Focus:</strong> Quantity and variety of mechanical/digital solutions.</li>
+      </ul>
+    )
+  },
+  {
+    id: 4,
+    title: "Identify Solution",
+    icon: <CheckCircle size={24}/>,
+    short: "Screening & Selection.",
+    detail: (
+      <ul className="list-disc pl-4 space-y-1 text-slate-600">
+        <li><strong>Screening:</strong> Weighted Decision Matrix (Safety 25%, Performance 25%).</li>
+        <li><strong>Selection:</strong> "Scraper Endoscope" selected over "Pipe Vehicle".</li>
+        <li><strong>Analysis:</strong> Sensitivity Analysis confirmed cost/safety balance.</li>
+      </ul>
+    )
+  },
+  {
+    id: 5,
+    title: "Develop & Test",
+    icon: <Wrench size={24}/>,
+    short: "Iterative Prototyping.",
+    detail: (
+      <ul className="list-disc pl-4 space-y-1 text-slate-600">
+        <li><strong>Proto 1:</strong> Virtual test of rubber/aluminum geometry.</li>
+        <li><strong>Proto 2:</strong> Optimized scraper hook for debris collection.</li>
+        <li><strong>Proto 3:</strong> Physical PLA chassis tested in 19mm pipe.</li>
+      </ul>
+    )
+  },
+  {
+    id: 6,
+    title: "Implement",
+    icon: <Layers size={24}/>,
+    short: "Final Design & Risk.",
+    detail: (
+      <ul className="list-disc pl-4 space-y-1 text-slate-600">
+        <li><strong>Outcome:</strong> Retractable endoscope costing ~$25 CAD.</li>
+        <li><strong>Risk:</strong> Safety risks mitigated to 'Low' via design controls.</li>
+        <li><strong>Impact:</strong> Low-cost, non-invasive alternative to excavation.</li>
+      </ul>
+    )
+  }
+];
+
+const galleryContent = [
+  {
+    phase: "Phase 1: Ideation & Strategy",
+    items: [
+      {
+        id: "g1",
+        title: "Ideation Mind Map",
+        src: "https://placehold.co/800x600/f1f5f9/334155?text=Ideation+Mind+Map", // Replace with /mindmap.png
+        tag: "Strategy",
+        shortDesc: "Brainstorming, SCAMPER, and 'Inverses & Extremes'.",
+        longDesc: "We utilized a structured ideation workflow, starting with Brainstorming to generate initial ideas. We then applied SCAMPER (Substitute, Combine, Adapt, Modify, Put to another use, Eliminate, Reverse) to refine these concepts. The 'Inverses and Extremes' method helped us explore boundary conditions, resulting in 39 distinct potential solutions ranging from biological sensors to mechanical robots."
+      },
+      {
+        id: "g2",
+        title: "Collaborative C-Sketch",
+        src: "https://placehold.co/800x600/f1f5f9/334155?text=Team+Collaboration", // Replace with /teamwork.jpg
+        tag: "Teamwork",
+        shortDesc: "Silent 5-minute sketching rounds to iterate ideas.",
+        longDesc: "Collaborative Sketching (C-Sketch) was our most effective ideation method. Each team member passed their sketch to the next person every 5 minutes, adding to the design without speaking. This process removed bias and allowed for rapid iteration. Both the 'Pipe Vehicle' and 'Neuralink' concepts emerged directly from these sessions."
+      },
+      {
+        id: "g3",
+        title: "Concept: Pipe Car",
+        src: "https://placehold.co/800x600/f1f5f9/334155?text=C-Sketch+Concept", // Replace with /c-sketch.png
+        tag: "Sketching",
+        shortDesc: "Early motorized vehicle concept.",
+        longDesc: "This detailed C-Sketch depicts the 'Pipe Vehicle', a motorized robot designed to navigate service lines. While initially promising due to its versatility, we later identified significant technical risks regarding motor torque and traction within small diameter (19mm) wet pipes. This analysis led us to pivot to the manual 'Scraper Endoscope'."
+      }
+    ]
+  },
+  {
+    phase: "Phase 2: Analysis & Design",
+    items: [
+      {
+        id: "g4",
+        title: "Solution Screening",
+        src: "https://placehold.co/800x600/f1f5f9/334155?text=Pairwise+Matrix", // Replace with /pairwise.png
+        tag: "Analysis",
+        shortDesc: "Pairwise Comparison against weighted criteria.",
+        longDesc: "To filter our 39 ideas, we used a Pairwise Comparison Matrix. We compared solutions against each other based on our Weighted Decision Matrix criteria: Safety (25%), Performance (25%), Cost (15%), and Maintenance (10%). The 'Ultrasonic' and 'Pipe Endoscope' solutions scored highest, guiding our final selection."
+      },
+      {
+        id: "g5",
+        title: "Proto 1: Virtual Concept",
+        src: "https://placehold.co/800x600/f1f5f9/334155?text=Prototype+1+Render", // Replace with /proto1-render.png
+        tag: "CAD Render",
+        shortDesc: "Testing rubber flexibility and housing geometry.",
+        longDesc: "Our first prototype was virtual, created to test the general geometry. We selected a synthetic rubber coating for flexibility and an aluminum head for durability. Virtual stress testing confirmed that the aluminum head (470 MPa yield strength) would easily withstand standard residential water pressure (310-345 KPa)."
+      },
+      {
+        id: "g6",
+        title: "Proto 2: Scraper Head",
+        src: "https://placehold.co/800x600/f1f5f9/334155?text=Prototype+2+Head", // Replace with /proto2-head.png
+        tag: "Detailed CAD",
+        shortDesc: "Optimized aluminum tip for selective scratching.",
+        longDesc: "The core innovation is the material selection. We designed the scraper tip using Aluminum 6061, which has a Mohs hardness of 2.75. Lead has a hardness of 1.5, while Copper and Steel are 3.0 and 4.0. This ensures our tool will scratch (and identify) lead pipes, but slide harmlessly over copper or steel, preventing damage to non-lead infrastructure."
+      }
+    ]
+  },
+  {
+    phase: "Phase 3: Verification & Build",
+    items: [
+      {
+        id: "g7",
+        title: "Proto 3: Mechanism",
+        src: "https://placehold.co/800x600/f1f5f9/334155?text=Mechanism+Schematic", // Replace with /proto3-mechanism.png
+        tag: "Schematic",
+        shortDesc: "Retractable hook mechanism cross-section.",
+        longDesc: "This cross-section shows the internal mechanism of Prototype 3. A copper wire runs through the vinyl tubing to the head. Pushing the wire retracts the hook for safe insertion; pulling the wire extends the hook to engage the pipe wall. The hook shape ensures it digs into soft lead but releases easily when the device is pulled backward."
+      },
+      {
+        id: "g8",
+        title: "Risk Assessment",
+        src: "https://placehold.co/800x600/f1f5f9/334155?text=Risk+Matrix", // Replace with /risk-matrix.png
+        tag: "Safety",
+        shortDesc: "5x5 Risk Heatmap prioritizing safety.",
+        longDesc: "We conducted a comprehensive Risk Assessment covering Safety, Technical, and Market risks. Our highest priority was preventing pipe damage or water contamination. By implementing mitigation strategies—such as the retractable mechanism and using non-toxic PLA/Aluminum materials—we reduced all residual safety risks to 'Low'."
+      },
+      {
+        id: "g9",
+        title: "Physical Verification",
+        src: "https://placehold.co/800x600/f1f5f9/334155?text=Physical+Prototype", // Replace with /proto3-physical.png
+        tag: "Final Build",
+        shortDesc: "3D Printed model validating pipe navigation.",
+        longDesc: "The final physical build used a 3D-printed PLA chassis fitted with six wheels for stability. We tested this model inside a 3D-printed pipe with a 19mm internal diameter (standard service line size). The test confirmed the device could navigate the pipe without jamming and the mechanism could successfully extend/retract."
+      }
+    ]
+  }
+];
+
+const reflectionContent = [
+  {
+    q: "What did you learn about the Engineering Design process from your experience in this course?",
+    a: "I learned that the engineering design process is fundamentally non-linear and requires the courage to pivot. In APSC 169, we initially selected the 'Pipe Vehicle' concept because of its versatility. However, during virtual prototyping, we realized the motors required to move it lacked sufficient torque for the pipe environment. We had to step back and pivot to the 'Scraper Endoscope'. This taught me that 'failure' in a prototype is actually a valuable data point that refines the final solution."
+  },
+  {
+    q: "Based on your experiences in this course, what are the most important attributes of an engineer?",
+    a: "The most important attributes are empathy, ethical responsibility, and adaptability. We weren't just solving a geometry puzzle; we were dealing with a public health crisis affecting children and pregnant women. An engineer must empathize with the homeowner who fears contaminated water and the city worker who needs a durable tool. Furthermore, adaptability was key; when our initial concept faced technical hurdles, we had to adapt our constraints to find a simpler, more mechanical solution."
+  },
+  {
+    q: "How has your experience contributed to your understanding of the role of the professional engineer in society?",
+    a: "My experience solidified that engineers are stewards of public safety and environmental protection. Our Risk Assessment (Report 4) wasn't just paperwork; it was a necessary step to ensure our device wouldn't accidentally damage infrastructure or contaminate the water supply further. I now understand that a professional engineer must balance technical innovation with societal trust, ensuring that cost-saving measures never compromise human safety."
+  },
+  {
+    q: "Based on what you learned about yourself, what strengths will you bring and what areas need growth?",
+    a: "I bring strong strengths in CAD visualization and technical sketching, which allowed our team to rapidly prototype ideas virtually before building them physically. I acted as an 'Optimizer', refining our designs for efficiency. However, I identified a need for growth in practical electronics and physical circuit assembly. To facilitate this growth, I plan to participate in more hands-on maker-space projects next semester to bridge the gap between my digital design skills and physical fabrication."
+  }
+];
+
 export default function DaniyalPortfolio() {
   const [activeTab, setActiveTab] = useState('home');
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [activeTab]);
-
-  // --- Data: Engineering Process ---
-  const processSteps = [
-    {
-      id: 0,
-      title: "Problem Definition",
-      icon: <AlertTriangle size={24}/>,
-      short: "Identify the root cause.",
-      detail: "We identified that lead contamination in drinking water is a critical health threat, affecting over 10M+ homes. The core problem was not just the pipes, but the disruptive, expensive excavation required to find them."
-    },
-    {
-      id: 1,
-      title: "Study & Clarify",
-      icon: <Search size={24}/>,
-      short: "Researching constraints.",
-      detail: "We researched existing solutions like acoustic sensors and water sampling. We found they were either too inaccurate or required expensive lab work. We defined constraints: <$100 cost, remote operation, and safety."
-    },
-    {
-      id: 2,
-      title: "Generate Solutions",
-      icon: <Lightbulb size={24}/>,
-      short: "Ideation & C-Sketch.",
-      detail: "Using C-Sketch and brainstorming, we generated 30+ concepts, ranging from 'X-Ray Lawnmowers' to 'Pipe Cars'. We focused on quantity before quality to explore remote detection methods."
-    },
-    {
-      id: 3,
-      title: "Identify Solution",
-      icon: <CheckCircle size={24}/>,
-      short: "Screening & Selection.",
-      detail: "We applied a Weighted Decision Matrix. Safety (25%) and Performance (25%) were prioritized. The 'Pipe Vehicle' and 'Endoscope' concepts scored highest, eliminating high-risk radiation ideas."
-    },
-    {
-      id: 4,
-      title: "Develop & Test",
-      icon: <Wrench size={24}/>,
-      short: "Iterative Prototyping.",
-      detail: "We built virtual prototypes. Iteration 1 (Pipe Car) failed due to motor torque issues. We pivoted to Prototype 3: A manual 'Scraper Endoscope' using aluminum (Mohs 2.75) to distinguish lead (Mohs 1.5) from copper."
-    },
-    {
-      id: 5,
-      title: "Implement",
-      icon: <Layers size={24}/>,
-      short: "Final Design & Risk.",
-      detail: "The final solution is a retractable endoscope costing ~$25 CAD. We conducted a full Risk Assessment (Report 4) to ensure the scraping mechanism would not damage infrastructure or contaminate water."
-    }
-  ];
-
-  // --- Data: Multimedia Gallery Content ---
-  // Update the 'src' paths here when you upload your images
-  const galleryContent = [
-    {
-      phase: "Phase 1: Ideation & Strategy",
-      items: [
-        {
-          title: "Ideation Mind Map",
-          // src: "/mindmap.png",
-          src: "https://placehold.co/800x600/f1f5f9/334155?text=Ideation+Mind+Map",
-          tag: "Strategy",
-          desc: "We utilized Brainstorming, SCAMPER, and 'Inverses & Extremes' to generate 39 initial concepts, ensuring a wide breadth of potential solutions."
-        },
-        {
-          title: "Collaborative C-Sketch",
-          // src: "/teamwork.jpg",
-          src: "https://placehold.co/800x600/f1f5f9/334155?text=Team+Collaboration",
-          tag: "Teamwork",
-          desc: "The team engaging in silent 5-minute sketching rounds. This allowed us to iteratively improve each other's designs without bias."
-        },
-        {
-          title: "Concept: Pipe Car",
-          // src: "/c-sketch.png",
-          src: "https://placehold.co/800x600/f1f5f9/334155?text=C-Sketch+Concept",
-          tag: "Sketching",
-          desc: "Early concept of a motorized vehicle. While creative, we later pivoted to a manual endoscope due to torque limitations discovered in analysis."
-        }
-      ]
-    },
-    {
-      phase: "Phase 2: Analysis & Design",
-      items: [
-        {
-          title: "Solution Screening",
-          // src: "/pairwise.png",
-          src: "https://placehold.co/800x600/f1f5f9/334155?text=Pairwise+Matrix",
-          tag: "Analysis",
-          desc: "A Pairwise Comparison Matrix was used to rigorously rank our top solutions against weighted criteria like Safety (25%) and Performance (25%)."
-        },
-        {
-          title: "Proto 1: Virtual Concept",
-          // src: "/proto1-render.png",
-          src: "https://placehold.co/800x600/f1f5f9/334155?text=Prototype+1+Render",
-          tag: "CAD Render",
-          desc: "Initial virtual prototype testing the flexibility of the rubber coating and the geometry of the aluminum camera housing."
-        },
-        {
-          title: "Proto 2: Scraper Head",
-          // src: "/proto2-head.png",
-          src: "https://placehold.co/800x600/f1f5f9/334155?text=Prototype+2+Head",
-          tag: "Detailed CAD",
-          desc: "Optimized scraper geometry. The aluminum tip (Mohs 2.75) is designed to scratch lead (Mohs 1.5) but slide harmlessly over copper."
-        }
-      ]
-    },
-    {
-      phase: "Phase 3: Verification & Build",
-      items: [
-        {
-          title: "Proto 3: Mechanism",
-          // src: "/proto3-mechanism.png",
-          src: "https://placehold.co/800x600/f1f5f9/334155?text=Mechanism+Schematic",
-          tag: "Schematic",
-          desc: "Cross-section of the retractable hook mechanism. Pulling the internal copper wire extends the tool to engage the pipe wall."
-        },
-        {
-          title: "Risk Assessment",
-          // src: "/risk-matrix.png",
-          src: "https://placehold.co/800x600/f1f5f9/334155?text=Risk+Matrix",
-          tag: "Safety",
-          desc: "Comprehensive 5x5 Risk Heatmap. We prioritized safety risks (e.g., pipe damage) and mitigated them to a 'Low' residual risk."
-        },
-        {
-          title: "Physical Verification",
-          // src: "/proto3-physical.png",
-          src: "https://placehold.co/800x600/f1f5f9/334155?text=Physical+Prototype",
-          tag: "Final Build",
-          desc: "Final 3D Printed PLA model. This physical test verified that the chassis could navigate a 19mm service line without getting stuck."
-        }
-      ]
-    }
-  ];
-
-  // --- Data: Reflection Content ---
-  const reflectionContent = [
-    {
-      q: "What did you learn about the Engineering Design process from your experience in this course?",
-      a: "I learned that the engineering design process is fundamentally non-linear and requires the courage to pivot. In APSC 169, we initially selected the 'Pipe Vehicle' concept because of its versatility. However, during virtual prototyping, we realized the motors required to move it lacked sufficient torque for the pipe environment. We had to step back and pivot to the 'Scraper Endoscope'. This taught me that 'failure' in a prototype is actually a valuable data point that refines the final solution."
-    },
-    {
-      q: "Based on your experiences in this course, what are the most important attributes of an engineer?",
-      a: "The most important attributes are empathy, ethical responsibility, and adaptability. We weren't just solving a geometry puzzle; we were dealing with a public health crisis affecting children and pregnant women. An engineer must empathize with the homeowner who fears contaminated water and the city worker who needs a durable tool. Furthermore, adaptability was key; when our initial concept faced technical hurdles, we had to adapt our constraints to find a simpler, more mechanical solution."
-    },
-    {
-      q: "How has your experience contributed to your understanding of the role of the professional engineer in society?",
-      a: "My experience solidified that engineers are stewards of public safety and environmental protection. Our Risk Assessment (Report 4) wasn't just paperwork; it was a necessary step to ensure our device wouldn't accidentally damage infrastructure or contaminate the water supply further. I now understand that a professional engineer must balance technical innovation with societal trust, ensuring that cost-saving measures never compromise human safety."
-    },
-    {
-      q: "Based on what you learned about yourself, what strengths will you bring and what areas need growth?",
-      a: "I bring strong strengths in CAD visualization and technical sketching, which allowed our team to rapidly prototype ideas virtually before building them physically. I acted as an 'Optimizer', refining our designs for efficiency. However, I identified a need for growth in practical electronics and physical circuit assembly. To facilitate this growth, I plan to participate in more hands-on maker-space projects next semester to bridge the gap between my digital design skills and physical fabrication."
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-emerald-200 selection:text-emerald-900 overflow-x-hidden">
@@ -209,10 +250,13 @@ export default function DaniyalPortfolio() {
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg bg-white/80 border-b border-white/20 shadow-sm transition-all duration-300">
         <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex flex-col cursor-pointer group" onClick={() => setActiveTab('home')}>
+          <button 
+            className="flex flex-col cursor-pointer group text-left focus:outline-none" 
+            onClick={() => setActiveTab('home')}
+          >
             <h1 className="text-2xl font-black tracking-tighter text-slate-900 group-hover:text-emerald-600 transition-colors">DH.</h1>
             <span className="text-[10px] uppercase tracking-widest font-semibold text-slate-500 group-hover:tracking-[0.15em] transition-all duration-300">Daniyal Hashmi</span>
-          </div>
+          </button>
 
           <div className="hidden md:flex gap-1 bg-slate-100/80 p-1 rounded-full border border-slate-200/50 backdrop-blur-md">
             {['home', 'about', 'project', 'reflection'].map((tab) => (
@@ -332,12 +376,12 @@ export default function DaniyalPortfolio() {
                         or a complex system, I find joy in the act of creation.
                       </p>
                       <p className="mb-4">
-                         When I'm not designing in CAD or working on a project, I enjoy exploring nature, 
-                         playing soccer, and diving into documentaries or educational videos. I also spend my free time 
-                         leveling up my programming skills and gaming.
+                          When I'm not designing in CAD or working on a project, I enjoy exploring nature, 
+                          playing soccer, and diving into documentaries or educational videos. I also spend my free time 
+                          leveling up my programming skills and gaming.
                       </p>
                       <p className="font-semibold text-emerald-800">
-                         My ultimate goal is simple: to have a meaningful impact in any way I can.
+                          My ultimate goal is simple: to have a meaningful impact in any way I can.
                       </p>
                    </div>
                    
@@ -356,31 +400,31 @@ export default function DaniyalPortfolio() {
               </div>
 
               <section>
-                 <h3 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
-                   <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600"><GraduationCap size={20}/></div>
-                   Education Timeline
-                 </h3>
-                 <div className="relative border-l-2 border-dashed border-emerald-200 ml-4 space-y-12">
-                    <TimelineItem 
-                      date="2025 - Present"
-                      title="Bachelor of Applied Science"
-                      subtitle="University of British Columbia - Okanagan"
-                      desc="Engineering Student. Focusing on sustainable design principles, applied sciences, and technical communication."
-                      current
-                    />
-                    <TimelineItem 
-                      date="2022 - 2025"
-                      title="High School Diploma"
-                      subtitle="South Huron District High School, ON"
-                      desc="Honour Roll | Ontario Scholar. Developed strong foundational skills in mathematics and sciences."
-                    />
-                    <TimelineItem 
-                      date="2012 - 2022"
-                      title="Primary & Secondary Education"
-                      subtitle="International School of Choueifat - Khalifa City"
-                      desc="Gained a rigorous international education foundation."
-                    />
-                 </div>
+                  <h3 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3">
+                    <div className="p-2 bg-emerald-100 rounded-lg text-emerald-600"><GraduationCap size={20}/></div>
+                    Education Timeline
+                  </h3>
+                  <div className="relative border-l-2 border-dashed border-emerald-200 ml-4 space-y-12">
+                     <TimelineItem 
+                       date="2025 - Present"
+                       title="Bachelor of Applied Science"
+                       subtitle="University of British Columbia - Okanagan"
+                       desc="Engineering Student. Focusing on sustainable design principles, applied sciences, and technical communication."
+                       current
+                     />
+                     <TimelineItem 
+                       date="2022 - 2025"
+                       title="High School Diploma"
+                       subtitle="South Huron District High School, ON"
+                       desc="Honour Roll | Ontario Scholar. Developed strong foundational skills in mathematics and sciences."
+                     />
+                     <TimelineItem 
+                       date="2012 - 2022"
+                       title="Primary & Secondary Education"
+                       subtitle="International School of Choueifat - Khalifa City"
+                       desc="Gained a rigorous international education foundation."
+                     />
+                  </div>
               </section>
 
               <section>
@@ -389,43 +433,12 @@ export default function DaniyalPortfolio() {
                    Experience & Involvement
                  </h3>
                  <div className="grid md:grid-cols-2 gap-6">
-                    <ExperienceCard 
-                      role="Staff Cadet"
-                      org="Rocky Mountain Cadet Training Centre"
-                      date="Summer 2024"
-                      type="Work Experience"
-                    />
-                    <ExperienceCard 
-                      role="Student Page"
-                      org="Huron County Public Library - Exeter Branch"
-                      date="2024 - 2025"
-                      type="Work Experience"
-                    />
-                    <ExperienceCard 
-                      role="Company Sergeant Major"
-                      subRole="Master Warrant Officer"
-                      org="Cadets Canada"
-                      date="Extracurricular"
-                      type="Leadership"
-                    />
-                    <ExperienceCard 
-                      role="Club Executive"
-                      org="Eco Exeter"
-                      date="Volunteer"
-                      type="Leadership"
-                    />
-                    <ExperienceCard 
-                      role="Volunteer"
-                      org="Huron County Immigration Partnership"
-                      date="Volunteer"
-                      type="Community"
-                    />
-                    <ExperienceCard 
-                      role="Club Volunteer"
-                      org="Library Chess & Coding Club"
-                      date="Volunteer"
-                      type="Mentorship"
-                    />
+                    <ExperienceCard role="Staff Cadet" org="Rocky Mountain Cadet Training Centre" date="Summer 2024" type="Work Experience" />
+                    <ExperienceCard role="Student Page" org="Huron County Public Library - Exeter Branch" date="2024 - 2025" type="Work Experience" />
+                    <ExperienceCard role="Company Sergeant Major" subRole="Master Warrant Officer" org="Cadets Canada" date="Extracurricular" type="Leadership" />
+                    <ExperienceCard role="Club Executive" org="Eco Exeter" date="Volunteer" type="Leadership" />
+                    <ExperienceCard role="Volunteer" org="Huron County Immigration Partnership" date="Volunteer" type="Community" />
+                    <ExperienceCard role="Club Volunteer" org="Library Chess & Coding Club" date="Volunteer" type="Mentorship" />
                  </div>
               </section>
 
@@ -520,32 +533,28 @@ export default function DaniyalPortfolio() {
                 </div>
               </section>
 
-              {/* 3. REFORMATTED Multimedia Gallery (The New "Showcase" Style) */}
-              <section className="bg-slate-900 rounded-[2.5rem] p-8 md:p-12 text-white">
-                <div className="mb-12">
-                  <h3 className="text-3xl font-bold mb-2">Design Evolution</h3>
-                  <p className="text-slate-400">A complete visual history from ideation to physical validation.</p>
-                </div>
-                
-                <div className="space-y-16">
-                  {galleryContent.map((section, idx) => (
-                    <div key={idx}>
-                      <h4 className="text-xl font-bold text-emerald-400 mb-6 border-b border-emerald-900 pb-2">{section.phase}</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {section.items.map((item, i) => (
-                          <ProjectGalleryCard 
-                            key={i}
-                            src={item.src}
-                            title={item.title}
-                            tag={item.tag}
-                            desc={item.desc}
-                          />
-                        ))}
+              {/* 3. Multimedia Gallery (New Interactive System) */}
+              <LayoutGroup>
+                <section className="bg-slate-900 rounded-[2.5rem] p-8 md:p-12 text-white">
+                  <div className="mb-12">
+                    <h3 className="text-3xl font-bold mb-2">Design Evolution</h3>
+                    <p className="text-slate-400">A complete visual history from ideation to physical validation.</p>
+                  </div>
+                  
+                  <div className="space-y-16">
+                    {galleryContent.map((section, idx) => (
+                      <div key={idx}>
+                        <h4 className="text-xl font-bold text-emerald-400 mb-6 border-b border-emerald-900 pb-2">{section.phase}</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                          {section.items.map((item) => (
+                            <ExpandableGalleryItem key={item.id} item={item} />
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
+                    ))}
+                  </div>
+                </section>
+              </LayoutGroup>
 
               {/* 4. Engineering Perspective Box */}
               <section className="bg-emerald-50 border border-emerald-100 rounded-3xl p-8 flex gap-6 items-start">
@@ -565,7 +574,7 @@ export default function DaniyalPortfolio() {
             </motion.div>
           )}
 
-          {/* ================= REFLECTION PAGE (Using Detailed Content) ================= */}
+          {/* ================= REFLECTION PAGE ================= */}
           {activeTab === 'reflection' && (
             <motion.div key="reflection" initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition} className="max-w-4xl mx-auto">
               <div className="bg-white rounded-3xl shadow-xl border border-white/50 overflow-hidden">
@@ -597,6 +606,88 @@ export default function DaniyalPortfolio() {
 
 // --- Sub-Components ---
 
+// NEW: Expandable Gallery Card
+function ExpandableGalleryItem({ item }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <>
+      <motion.div 
+        layoutId={`card-${item.id}`}
+        onClick={() => setIsOpen(true)}
+        className="bg-slate-800/50 rounded-3xl overflow-hidden hover:bg-slate-800 transition-colors duration-300 group border border-white/5 cursor-pointer relative"
+        whileHover={{ scale: 1.02 }}
+      >
+        <motion.div layoutId={`img-container-${item.id}`} className="h-64 overflow-hidden relative">
+          <motion.img 
+            layoutId={`img-${item.id}`}
+            src={item.src} 
+            alt={item.title} 
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" 
+          />
+          <motion.div layoutId={`tag-${item.id}`} className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-emerald-300 border border-white/10">
+            {item.tag}
+          </motion.div>
+        </motion.div>
+        <motion.div layoutId={`content-${item.id}`} className="p-6">
+          <motion.h4 layoutId={`title-${item.id}`} className="text-xl font-bold text-white mb-2">{item.title}</motion.h4>
+          <motion.p layoutId={`desc-${item.id}`} className="text-sm text-slate-300 leading-relaxed">{item.shortDesc}</motion.p>
+          <div className="mt-4 flex items-center text-emerald-400 text-xs font-bold uppercase tracking-wider group-hover:text-emerald-300">
+            Read Analysis <ArrowRight size={14} className="ml-1" />
+          </div>
+        </motion.div>
+      </motion.div>
+
+      <AnimatePresence>
+        {isOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setIsOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div 
+              layoutId={`card-${item.id}`}
+              className="w-full max-w-3xl bg-slate-900 rounded-[2rem] overflow-hidden relative z-10 border border-slate-700 shadow-2xl"
+            >
+              <button 
+                onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
+                className="absolute top-4 right-4 p-2 bg-black/50 rounded-full text-white hover:bg-white hover:text-black transition-colors z-20"
+              >
+                <X size={20}/>
+              </button>
+
+              <motion.div layoutId={`img-container-${item.id}`} className="h-80 w-full relative">
+                <motion.img 
+                  layoutId={`img-${item.id}`}
+                  src={item.src} 
+                  alt={item.title} 
+                  className="w-full h-full object-cover" 
+                />
+                <motion.div layoutId={`tag-${item.id}`} className="absolute top-6 left-6 bg-emerald-600 px-4 py-1.5 rounded-full text-sm font-bold text-white shadow-lg">
+                  {item.tag}
+                </motion.div>
+              </motion.div>
+
+              <motion.div layoutId={`content-${item.id}`} className="p-10">
+                <motion.h4 layoutId={`title-${item.id}`} className="text-3xl font-black text-white mb-6">{item.title}</motion.h4>
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="prose prose-invert max-w-none"
+                >
+                  <p className="text-lg text-slate-300 leading-relaxed">{item.longDesc}</p>
+                </motion.div>
+              </motion.div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
 function FeatureCard({ icon, title, desc, delay }) {
   return (
     <motion.div variants={itemFadeUp} whileHover={{ y: -5 }} className="group p-8 rounded-3xl bg-white/80 backdrop-blur-xl border border-white/60 shadow-lg hover:shadow-xl hover:border-emerald-200 transition-all duration-300">
@@ -604,34 +695,6 @@ function FeatureCard({ icon, title, desc, delay }) {
       <h3 className="font-bold text-xl text-slate-900 mb-3">{title}</h3>
       <p className="text-slate-600 leading-relaxed text-sm font-medium">{desc}</p>
     </motion.div>
-  );
-}
-
-function NarrativeBlock({ step, title, content }) {
-  return (
-    <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 hover:border-emerald-100 transition-colors relative overflow-hidden group">
-      <div className="absolute top-0 right-0 p-8 opacity-10 font-black text-8xl text-slate-300 group-hover:text-emerald-200 transition-colors select-none">{step}</div>
-      <h3 className="text-xl font-bold text-slate-900 mb-4 relative z-10">{title}</h3>
-      <div className="text-slate-600 leading-relaxed relative z-10">{content}</div>
-    </div>
-  );
-}
-
-// NEW: The "Showcase" Gallery Card Component
-function ProjectGalleryCard({ src, title, tag, desc }) {
-  return (
-    <div className="bg-slate-800/50 rounded-3xl overflow-hidden hover:bg-slate-800 transition-colors duration-300 group border border-white/5">
-      <div className="h-56 overflow-hidden relative">
-        <img src={src} alt={title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-        <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-emerald-300 border border-white/10">
-          {tag}
-        </div>
-      </div>
-      <div className="p-6">
-        <h4 className="text-xl font-bold text-white mb-2">{title}</h4>
-        <p className="text-sm text-slate-300 leading-relaxed">{desc}</p>
-      </div>
-    </div>
   );
 }
 
@@ -692,6 +755,7 @@ function InterestTag({ icon, label }) {
 function ProcessStepCard({ step }) {
   return (
     <motion.div 
+      layout // Added layout prop for smooth flex resizing
       className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white cursor-pointer shadow-sm hover:shadow-lg transition-shadow duration-300 flex-grow group"
       initial={false}
       whileHover={{ flexGrow: 5 }}
@@ -714,7 +778,7 @@ function ProcessStepCard({ step }) {
           <h3 className="text-2xl font-bold text-slate-900 mb-2">{step.title}</h3>
           <div className="h-1 w-12 bg-emerald-500 rounded-full mb-4"></div>
           <p className="text-sm font-semibold text-emerald-700 mb-2">{step.short}</p>
-          <p className="text-slate-600 leading-relaxed text-sm">{step.detail}</p>
+          <div className="text-slate-600 leading-relaxed text-sm">{step.detail}</div>
         </div>
       </div>
     </motion.div>
