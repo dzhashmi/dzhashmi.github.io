@@ -15,17 +15,160 @@ import {
   GraduationCap, Briefcase, Code, MonitorPlay,
   Cpu, Gamepad2, Leaf, Activity, Search, Wrench, CheckCircle, AlertTriangle,
   Recycle, Network, CalendarClock, Truck, Quote, ChevronDown,
-  Maximize2
+  Maximize2, ExternalLink, ArrowLeft, Hammer, Disc, Home, Volume2, Eye
 } from 'lucide-react';
+
+// --- PDF VIEWER COMPONENT (INLINE FOR PREVIEW) ---
+// [LOCAL SETUP] UNCOMMENT THESE 3 LINES IN YOUR LOCAL PROJECT IF USING react-pdf
+import { Document, Page, pdfjs } from 'react-pdf';
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+
+const PDFViewer = ({ file, onClose }) => {
+  const [numPages, setNumPages] = useState(null);
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  function onDocumentLoadSuccess({ numPages }) {
+    setNumPages(numPages);
+  }
+
+  return (
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div 
+        className="relative h-[90vh] w-full max-w-5xl overflow-y-auto rounded-lg bg-gray-900 p-2 shadow-2xl custom-scrollbar" 
+        onClick={(e) => e.stopPropagation()} 
+        onContextMenu={(e) => e.preventDefault()} // PREVENTS RIGHT CLICK SAVE
+      >
+        <button 
+          onClick={onClose}
+          className="sticky top-2 right-2 z-50 float-right mb-4 rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-lg hover:bg-red-700 transition-colors flex items-center gap-2"
+        >
+          <X size={16} /> Close
+        </button>
+
+        <div className="flex flex-col items-center justify-center min-h-full select-none pb-10">
+          
+          {/* --- [LOCAL SETUP] UNCOMMENT THIS BLOCK FOR REAL PDF VIEWING --- */}
+          {
+          <Document
+            file={file}
+            onLoadSuccess={onDocumentLoadSuccess}
+            className="flex flex-col gap-4"
+            loading={
+              <div className="flex flex-col items-center justify-center text-white h-64">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
+                <p>Loading Secure Document...</p>
+              </div>
+            }
+            error={
+              <div className="text-red-400 p-10 text-center border border-red-900 rounded-lg bg-red-900/20">
+                <p className="text-xl font-bold">Unable to load PDF.</p>
+                <p className="text-sm mt-2 opacity-70">Ensure file exists in 'public' folder.</p>
+              </div>
+            }
+          >
+            {numPages && Array.from(new Array(numPages), (el, index) => (
+              <Page 
+                key={`page_${index + 1}`} 
+                pageNumber={index + 1} 
+                renderTextLayer={false}       // PREVENTS SELECTING TEXT
+                renderAnnotationLayer={false} // PREVENTS LINKS/DOWNLOADS
+                className="shadow-2xl mb-4 border border-gray-800"
+                width={Math.min(windowWidth * 0.85, 900)}
+              />
+            ))}
+          </Document>
+          }
+
+          
+
+        </div>
+      </div>
+    </div>
+  );
+};
 
 /* ASSETS INSTRUCTIONS:
    Ensure all images are in the /public folder exactly as named.
 */
 
 // --- Configuration ---
-const pdfUrl = "/Final Draft APSC169 L2F Team 2 - Reports-merged.pdf"; 
+// This is the main report file
+const pdfUrl = "/report.pdf"; 
 const email = "daniyalzahidhashmi@hotmail.com";
 const linkedinUrl = "https://www.linkedin.com/in/daniyal-hashmi101";
+
+// --- Random Quotes Data ---
+const quotesData = [
+  { 
+    prefix: "The way to succeed is to", 
+    highlight: "double your failure rate.", 
+    author: "Thomas J. Watson" 
+  },
+  { 
+    prefix: "Scientists discover the world that exists;", 
+    highlight: "engineers create the world that never was.", 
+    author: "Theodore von Kármán" 
+  },
+  { 
+    prefix: "Design is not just what it looks like.", 
+    highlight: "Design is how it works.", 
+    author: "Steve Jobs" 
+  },
+  { 
+    prefix: "Failure is simply the opportunity to begin again,", 
+    highlight: "this time more intelligently.", 
+    author: "Henry Ford" 
+  },
+  { 
+    prefix: "Strive for perfection in everything you do.", 
+    highlight: "Take the best that exists and make it better.", 
+    author: "Sir Henry Royce" 
+  },
+  { 
+    prefix: "It is not about ideas. It is about", 
+    highlight: "making ideas happen.", 
+    author: "Scott Belsky" 
+  }
+];
+
+// --- Other Projects Data ---
+// UPDATED: Added 'pdf' property mapped to your specific files
+const otherProjects = [
+  {
+    title: "Catapult Project",
+    desc: "A mechanical design challenge focusing on trajectory and force.",
+    icon: <Hammer size={24} />,
+    pdf: "/public/DaniyalHashmi-CatapultProject.pdf"
+  },
+  {
+    title: "Whistle Design",
+    desc: "3D modeling and additive manufacturing of a functional whistle.",
+    icon: <Volume2 size={24} />,
+    pdf: "/public/Daniyal hashmi-whistle.pdf"
+  },
+  {
+    title: "House Modelling",
+    desc: "Architectural CAD modelling and spatial design.",
+    icon: <Home size={24} />,
+    pdf: "/public/HouseRenovationProposal.pdf"
+  },
+  {
+    title: "3D Scan Turntable",
+    desc: "A 3D printed turntable designed to assist in photogrammetry.",
+    icon: <Disc size={24} />,
+    pdf: "/public/Daniyal hashmi-IDS.pdf"
+  }
+];
 
 // --- Animation Variants ---
 const pageVariants = {
@@ -120,7 +263,7 @@ const processSteps = [
     ),
     reportContent: (
       <div className="space-y-4">
-        <p>We employed a Weighted Decision Matrix to filter our 39 concepts, weighting Safety and Performance at 25% each. While the "Pipe Vehicle" was innovative, we identified critical flaws in its propulsion feasibility. Consequently, we selected the "Scraper Endoscope" for its reliance on reliable mechanical principles (Mohs hardness) over complex electronics, ensuring it met the ~$150 budget and safety constraints.</p>
+        <p>We employed a Weighted Decision Matrix to filter our 39 concepts, weighting Safety and Performance at 25% each. While the "Pipe Vehicle" was innovative, we identified critical flaws in its propulsion feasibility. Consequently, we selected the "Scraper Endoscope" for its reliance on reliable mechanical principles (Mohs hardness) over complex electronics, maximizing reliability and minimizing cost.</p>
       </div>
     )
   },
@@ -166,7 +309,7 @@ const processSteps = [
 const designEvolutionData = [
   {
     title: "Ideation & Team Dynamics",
-    description: "The journey began with divergent thinking and strong collaboration. We utilized 'C-Sketch' (Collaborative Sketching) to generate 39 unique ideas in under two hours, passing drawings silently every 5 minutes to build on each other's concepts. This process, combined with our Mind Map, allowed us to break down the problem into acoustic, chemical, and mechanical detection vectors. Our team prioritized consensus-based decision-making to ensure every voice was heard.",
+    description: "We began by using the brainstorming technique which included listing out immediate concepts like 'talking pipes' or 'spikes in the ground'. We also utilised other techniques during this process, such as inverses, and extremes. These techniques included solving the reverse problem or using extreme solutions to break design fixation. Then finally used the C-Sketch method to generate 5 refined ideas to add onto our list of brainstormed ideas. Adding up to 39 unique and diverse ideas, ranging from Ground Penetrating Radars, to time machines.",
     images: [
       { src: "/mindmap.png", title: "Problem Space Mind Map", desc: "Our initial roadmap connecting LSLs to potential detection vectors: Acoustic, Chemical, and Mechanical." },
       { src: "/All C_sketches.png", title: "C-Sketch Output", desc: "The raw output of our rapid ideation session. 39 distinct concepts were generated here." },
@@ -175,14 +318,14 @@ const designEvolutionData = [
   },
   {
     title: "The 'Pipe Car' Concept (My Model)",
-    description: "Our initial top contender was the 'Pipe Vehicle'. I created this low-fidelity CAD model to visualize how a motorized rover could navigate 19mm pipes. We were drawn to its versatility—it could carry cameras, sensors, or scrapers. However, during virtual testing, we realized that motors small enough to fit in the pipe lacked the torque required to drive wheels in a wet, pressurized environment. This critical feasibility failure forced us to pivot.",
+    description: "Our initial top contender was the 'Pipe Vehicle'. I created this low-fidelity CAD model to visualize how a motorized rover could navigate 19mm pipes. It could carry cameras, sensors, or scrapers. However, during virtual testing, we realized that motors small enough to fit in the pipe lacked the torque required to drive wheels in a wet, pressurized environment. This critical feasibility failure forced us to pivot.",
     images: [
       { src: "/PipeCar_Low_Fidelity_CAD_View3.png", title: "My CAD: Pipe Car", desc: "I modeled this concept to test packaging constraints. The wheelbase calculations revealed it would struggle with traction in vertical pipe sections." }
     ]
   },
   {
     title: "The Pivot: Scraper Endoscope",
-    description: "We pivoted to a simpler, more robust solution: The Scraper Endoscope. I developed this virtual prototype (Prototype 1) to validate the geometry of a manual push-rod system. The goal was to rely on material science (Mohs hardness) rather than complex electronics. By selecting an Aluminum tip (Mohs 2.75), we could physically scratch Lead (Mohs 1.5) but glide harmlessly over Copper (Mohs 3.0), creating a fail-safe mechanical test.",
+    description: "We moved to a simpler, more promising solution: The Piper Endoscope. I developed this low-fidelity prototype (prototype 1) to visualize how it would look, and specifically visualize the head and its functionality. By selecting a material hard enough on the Mohs Hardness scale that can scratch lead, but no other commonly used pipe material, we use this as a mechanical test, which could even retrieve samples to be tested for verification.",
     images: [
       { src: "/PipeEndoscope_Proto1_View1.png", title: "My CAD: Proto 1", desc: "I created this virtual flex test to ensure the device could navigate 90-degree bends without kinking." }
     ]
@@ -219,6 +362,27 @@ const lcaData = [
   }
 ];
 
+const detailedRiskData = [
+  { id: "R001", desc: "Device gets stuck in pipe.", cat: "Operational", source: "Preventable", L: 3, I: 5, score: 15, level: "High", strategy: "Mitigate" },
+  { id: "R002", desc: "Scraper breaks off in pipe.", cat: "Operational", source: "Preventable", L: 1, I: 5, score: 5, level: "Low", strategy: "Mitigate" },
+  { id: "R003", desc: "Not collecting enough sample.", cat: "Operational", source: "External", L: 1, I: 2, score: 2, level: "Low", strategy: "Accept" },
+  { id: "R004", desc: "GPS malfunctioning.", cat: "Operational", source: "Preventable", L: 2, I: 2, score: 4, level: "Low", strategy: "Mitigate" },
+  { id: "R005", desc: "Contaminating pipes with lead.", cat: "Safety", source: "Preventable", L: 1, I: 4, score: 4, level: "Low", strategy: "Mitigate" },
+  { id: "R006", desc: "Tripping on rubber body.", cat: "Safety", source: "Preventable", L: 1, I: 1, score: 1, level: "Low", strategy: "Accept" },
+  { id: "R007", desc: "Pipe leak/damage to env.", cat: "Safety", source: "External", L: 1, I: 1, score: 1, level: "Low", strategy: "Accept" },
+  { id: "R008", desc: "Wrong design dimensions.", cat: "Technical", source: "Preventable", L: 2, I: 4, score: 8, level: "Medium", strategy: "Mitigate" },
+  { id: "R009", desc: "Incorrect aluminum alloy.", cat: "Technical", source: "Preventable", L: 2, I: 4, score: 8, level: "Medium", strategy: "Mitigate" },
+  { id: "R010", desc: "Incorrect rubber type.", cat: "Technical", source: "Preventable", L: 2, I: 3, score: 6, level: "Medium", strategy: "Avoid" },
+  { id: "R011", desc: "Selling non-functioning part.", cat: "Technical", source: "Preventable", L: 2, I: 5, score: 10, level: "Medium", strategy: "Mitigate" },
+  { id: "R012", desc: "Product not finished on time.", cat: "Proj Mgmt", source: "Preventable", L: 1, I: 3, score: 3, level: "Low", strategy: "Avoid" },
+  { id: "R013", desc: "Not completing within budget.", cat: "Proj Mgmt", source: "Strategic", L: 1, I: 3, score: 3, level: "Low", strategy: "Accept" },
+  { id: "R014", desc: "Communication breakdown.", cat: "Proj Mgmt", source: "Preventable", L: 2, I: 4, score: 8, level: "Medium", strategy: "Mitigate" },
+  { id: "R015", desc: "Exceeding Project Scope.", cat: "Proj Mgmt", source: "Strategic", L: 2, I: 2, score: 4, level: "Low", strategy: "Avoid" },
+  { id: "R016", desc: "Inadequate market research.", cat: "Market", source: "Preventable", L: 2, I: 3, score: 6, level: "Medium", strategy: "Mitigate" },
+  { id: "R017", desc: "Wrong target audience.", cat: "Market", source: "Preventable", L: 2, I: 3, score: 6, level: "Medium", strategy: "Mitigate" },
+  { id: "R018", desc: "Price fluctuations.", cat: "Market", source: "Preventable", L: 3, I: 3, score: 9, level: "Medium", strategy: "Mitigate" }
+];
+
 const timelineEvents = [
   { phase: "Regulatory", task: "Validate Requirements", days: "1 Day" },
   { phase: "R&D", task: "Simulations & CAD", days: "21 Days" },
@@ -228,19 +392,49 @@ const timelineEvents = [
   { phase: "Launch", task: "Stakeholder Review", days: "14 Days" }
 ];
 
-// --- Data: Expanded Reflection ---
+// --- Data: Expanded Reflection (REVAMPED) ---
 const reflectionContent = [
   {
-    a: "I learned that the engineering design process is fundamentally non-linear and requires the courage to pivot based on data. In APSC 169, we initially committed to the 'Pipe Vehicle' concept because of its versatility. However, our Weighted Decision Matrix (Report 3) and subsequent virtual prototyping revealed that while it scored high on 'Innovation', it failed on 'Feasibility' due to torque constraints in 19mm pipes. We had to step back and pivot to the 'Scraper Endoscope'. This taught me that 'failure' in a prototype is actually a critical success in the process, as it generates the data needed to refine the final solution."
+    title: "Engineering Design Process",
+    icon: <PenTool size={32} />,
+    content: (
+      <>
+        I learned that the engineering design process is a non-linear process that requires a lot of iteration and good teamwork to be successful in solving an open ended, real life problem. In APSC 169 design labs, we first initially selected the 'Pipe Vehicle' concept because it was versatile and innovative. However, during virtual prototyping, we realized the motors required to move it lacked sufficient torque, did not exist, or function in the way we were hoping for them. We had to step back and pivot to the 'Pipe Endoscope'. This taught me that failure in a prototype is actually a critical success in the process, as it generates the data needed to refine the final solution towards feasibility.
+      </>
+    )
   },
   {
-    a: "The most important attributes of an engineer are empathy, ethical responsibility, and adaptability. We weren't just solving a geometry puzzle; we were dealing with a public health crisis affecting real families. Our Stakeholder Analysis (Report 2) highlighted the anxiety homeowners feel about contaminated water. An engineer must empathize with that end-user. Furthermore, adaptability was key; when our high-tech concept faced hurdles, we adapted our constraints to find a simpler, mechanical solution (Mohs Hardness Test) that was more reliable. The 'best' solution isn't always the most complex; it's the one that works reliably for the user."
+    title: "Attributes of an Engineer",
+    icon: <User size={32} />,
+    content: (
+      <>
+        During my time working on this project I learned that there are many important attributes that an engineer should have:
+        <ul className="list-disc pl-5 space-y-2 mt-4 text-base">
+          <li><strong>Problem-Solving and Critical Thinking:</strong> The ability to analyze complex, real world, open-ended problems, break them down into manageable parts, and develop innovative solutions is fundamental. My experience with the 'Pipe Vehicle' failure showed the need for screening and scoring initial designs when faced with new challenges.</li>
+          <li><strong>Adaptability and Iteration:</strong> Since the design process is non-linear, engineers must be flexible. Real-world constraints often require major changes, requiring the engineer to quickly iterate and learn from failures.</li>
+          <li><strong>Effective Communication and Teamwork:</strong> Engineering projects are rarely a one person job. Success relies heavily on clear communication, active listening, conflict resolution, and collaborating effectively within a diverse team.</li>
+          <li><strong>Ethical Responsibility:</strong> An engineer must always consider the impact of their work on the public, the environment, and society. This involves upholding engineering ethics, prioritizing safety, and designing sustainable solutions.</li>
+        </ul>
+      </>
+    )
   },
   {
-    a: "My experience solidified that engineers are stewards of public safety and environmental protection. Our Risk Assessment (Report 4) highlighted that our device couldn't just work; it had to be fail-safe. If our scraper broke off inside a pipe, we would be exacerbating the problem. We implemented a 'preventable' risk mitigation strategy by adding a retraction mechanism. I now understand that a professional engineer must balance technical innovation with societal trust, ensuring that cost-saving measures—like choosing cheaper manufacturing materials—never compromise human safety or environmental integrity."
+    title: "Role in Society",
+    icon: <Network size={32} />,
+    content: (
+      <>
+        My experience on this project significantly deepened my understanding of the professional engineer's role. Working on the Lead Service Line detection system showed me that engineers solve critical societal issues. We had to navigate bylaws, environmental impacts, and health risks, and the needs of various stakeholders of various degrees. I also realized that the quality of work an engineer produces has a significant impact on people’s lives. An engineer's responsibility extends beyond just making things, it includes the safety, sustainability, and ethics, morals, and integrity of the solutions we introduce into society to solve real world problems.
+      </>
+    )
   },
   {
-    a: "I bring strong strengths in CAD visualization and technical sketching, which allowed our team to rapidly prototype ideas virtually before wasting resources on physical builds. I acted as an 'Optimizer' (Basadur Profile), refining our designs for efficiency. However, I identified a need for growth in practical electronics and physical fabrication. While I can design a circuit virtually, the hands-on assembly of the 'Pipe Car' motors proved challenging. To facilitate this growth, I plan to participate in more hands-on maker-space projects next semester, specifically focusing on soldering and mechatronics, to bridge the gap between my digital design skills and physical reality."
+    title: "Strengths & Growth",
+    icon: <Lightbulb size={32} />,
+    content: (
+      <>
+        I bring strong strengths in CAD visualization and technical sketching, which allowed our team to rapidly prototype ideas virtually before building them physically. I acted as an 'Optimizer', refining our designs for efficiency, and making sure our group dynamics were always at the performing stage. However, I identified a need for growth in practical electronics and physical prototyping. Even though I may be skillful in these areas, there is always room for improvement. I plan on improving and building upon my knowledge in these skills throughout my university experience. I plan on becoming an active member in some of the clubs, and even plan on starting my own club with my peers in Bionics, to be able to learn something new, implement my academic knowledge, and grow.
+      </>
+    )
   }
 ];
 
@@ -409,7 +603,7 @@ const BentoImage = ({ item }) => {
       <motion.div 
         layoutId={`bento-img-${item.src}`}
         onClick={() => setIsOpen(true)}
-        className={`${item.span || 'col-span-1'} group relative rounded-3xl overflow-hidden cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300 bg-slate-100 border border-slate-200 aspect-video md:aspect-auto`}
+        className={`${item.span || 'col-span-1'} group relative rounded-3xl overflow-hidden cursor-pointer shadow-sm hover:shadow-xl transition-all duration-300 bg-slate-100 border border-slate-200 aspect-video`}
         whileHover={{ scale: 1.02 }}
       >
         <motion.img src={item.src} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
@@ -457,19 +651,463 @@ const BentoImage = ({ item }) => {
   );
 }
 
-export default function DaniyalPortfolio() {
-  const [activeTab, setActiveTab] = useState('home');
+// ================================================
+//   NEW COMPONENTS: PROJECTS GALLERY & LEAD PROJECT WRAPPER
+// ================================================
+
+// UPDATED: Now accepts onViewPdf prop to handle PDF clicks
+const ProjectsGallery = ({ onSelectProject, onViewPdf }) => {
+  return (
+    <div className="space-y-16">
+      <div className="text-center space-y-4 mb-16">
+        <h2 className="text-4xl md:text-5xl font-black text-slate-900">My Projects</h2>
+        <p className="text-slate-500 text-lg max-w-2xl mx-auto">A collection of my engineering design work, prototyping, and technical problem solving.</p>
+      </div>
+
+      {/* FEATURED PROJECT CARD */}
+      <motion.div 
+        onClick={() => onSelectProject('lead-detection')}
+        whileHover={{ y: -5 }}
+        className="relative w-full bg-slate-900 rounded-[2.5rem] overflow-hidden cursor-pointer shadow-2xl group border border-slate-800"
+      >
+        {/* Background Decoration */}
+        <div className="absolute inset-0">
+          <div className="absolute -right-20 -top-20 w-96 h-96 bg-emerald-500/20 rounded-full blur-[100px]"></div>
+          <div className="absolute -left-20 -bottom-20 w-80 h-80 bg-blue-500/20 rounded-full blur-[80px]"></div>
+        </div>
+
+        <div className="relative z-10 grid md:grid-cols-2 gap-8 p-8 md:p-12 items-center">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-bold uppercase tracking-widest border border-emerald-500/30">
+              <Layers size={12} /> Featured Case Study
+            </div>
+            <h3 className="text-3xl md:text-5xl font-black text-white leading-tight">Lead Service Line <br/> Detection Device</h3>
+            <p className="text-slate-400 text-lg leading-relaxed">
+              A comprehensive engineering design project addressing the public health crisis of lead contamination. Follows the full design cycle from problem definition to valid physical prototyping.
+            </p>
+            <div className="flex flex-wrap gap-3">
+              <span className="px-3 py-1 bg-slate-800 text-slate-300 rounded-lg text-xs font-mono border border-slate-700">CAD</span>
+              <span className="px-3 py-1 bg-slate-800 text-slate-300 rounded-lg text-xs font-mono border border-slate-700">Prototyping</span>
+              <span className="px-3 py-1 bg-slate-800 text-slate-300 rounded-lg text-xs font-mono border border-slate-700">Systems Analysis</span>
+            </div>
+            <div className="pt-4">
+              <span className="inline-flex items-center gap-2 text-white font-bold group-hover:translate-x-2 transition-transform">
+                View Case Study <ArrowRight size={20} />
+              </span>
+            </div>
+          </div>
+          <div className="relative h-64 md:h-full min-h-[300px] bg-slate-800/50 rounded-3xl overflow-hidden border border-white/10 flex items-center justify-center p-6 group-hover:bg-slate-800/70 transition-colors">
+              <img src="/PipeEndoscope_Proto3_View2.png" alt="Lead Detection Device" className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-110" />
+          </div>
+        </div>
+      </motion.div>
+
+      {/* OTHER PROJECTS GRID */}
+      <div className="space-y-8">
+        <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
+          <Briefcase className="text-emerald-500" size={24}/> Project Archive
+        </h3>
+        <div className="grid md:grid-cols-2 gap-6">
+          {otherProjects.map((project, idx) => (
+            <motion.div 
+              key={idx}
+              // Changed from <a> to div with onClick for secure PDF viewing
+              onClick={() => project.pdf ? onViewPdf(project.pdf) : window.open(project.link, '_blank')}
+              whileHover={{ y: -5 }}
+              className="cursor-pointer group block bg-white p-8 rounded-3xl border border-slate-200 shadow-sm hover:shadow-lg hover:border-emerald-200 transition-all"
+            >
+              <div className="flex justify-between items-start mb-6">
+                <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-600 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                  {project.icon}
+                </div>
+                <ExternalLink size={20} className="text-slate-300 group-hover:text-emerald-500 transition-colors" />
+              </div>
+              <h4 className="text-xl font-bold text-slate-900 mb-2 group-hover:text-emerald-700 transition-colors">{project.title}</h4>
+              <p className="text-slate-500 text-sm leading-relaxed">{project.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// WRAPPER FOR THE DETAILED PROJECT VIEW
+// This effectively "re-adds" the Lead Detection project page logic when selected
+const LeadDetectionProject = ({ onBack }) => {
   const [hoveredProcessStep, setHoveredProcessStep] = useState(null);
   const [activeTechTab, setActiveTechTab] = useState('lca');
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 50 }}
+      className="space-y-24"
+    >
+      {/* BACK BUTTON NAV */}
+      <div className="sticky top-24 z-40 pb-4 bg-gradient-to-b from-slate-50 to-transparent">
+        <button 
+          onClick={onBack}
+          className="flex items-center gap-2 px-5 py-2 bg-white border border-slate-200 rounded-full shadow-sm hover:shadow-md hover:text-emerald-600 transition-all text-slate-600 font-bold text-sm"
+        >
+          <ArrowLeft size={16}/> Back to Projects
+        </button>
+      </div>
+
+      {/* Header */}
+      <header className="bg-slate-900 text-white rounded-[2.5rem] p-10 md:p-20 relative overflow-visible shadow-2xl">
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
+        <div className="relative z-10 max-w-4xl">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold uppercase tracking-wider text-[10px] mb-6"><Layers size={12}/> APSC 169 Team 02</div>
+          <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight">Lead Service Line <br/> Detection</h2>
+          <p className="text-slate-300 text-xl leading-relaxed max-w-2xl font-light">Designing a remote, portable, and low-maintenance solution to identify lead service line infrastructure without excavation.</p>
+          
+          {/* --- ABSTRACT DROPDOWN --- */}
+          <ProjectAbstract />
+        </div>
+      </header>
+
+      {/* 1. The Challenge */}
+      <section className="grid md:grid-cols-2 gap-12 items-center">
+        <div className="prose prose-lg text-slate-600">
+          <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-3"><span className="flex items-center justify-center w-8 h-8 rounded-full bg-red-100 text-red-600 text-sm">01</span>The Challenge</h3>
+          <p className="text-justify">
+            <strong>Why we did it:</strong> Lead contamination in drinking water remains a critical public health threat. Traditional methods of detection (excavation) are disruptive, expensive, and environmentally damaging.
+          </p>
+          <p className="text-justify">
+            <strong>Objective:</strong> To design a device that is remote, portable, safe for humans/environment, and costs under $100 to prototype.
+          </p>
+        </div>
+        
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 gap-4">
+            <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 text-center">
+                <p className="text-4xl font-black text-red-500 mb-1">10M+</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Lead Pipes in N. America</p>
+            </div>
+            <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 text-center">
+                <p className="text-4xl font-black text-red-500 mb-1">$5k+</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Cost per Excavation</p>
+            </div>
+             <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 text-center">
+                <p className="text-4xl font-black text-red-500 mb-1">50%</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Euro Properties at Risk</p>
+            </div>
+            <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 text-center">
+                <p className="text-4xl font-black text-emerald-500 mb-1">~$150</p>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Target Device Cost</p>
+            </div>
+        </div>
+      </section>
+
+      {/* 2. The Engineering Process */}
+      <section className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-100">
+        <h3 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-3"><span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm">02</span>The Engineering Process</h3>
+        
+        {/* INTRO PARAGRAPH FOR PROCESS */}
+        <p className="text-slate-600 mb-8 max-w-4xl text-lg leading-relaxed">
+          We utilized a structured engineering design process to tackle the complex issue of Lead Service Line detection. By moving methodically from problem definition to final implementation, we ensured our solution was not just innovative, but feasible, safe, and economically viable.
+        </p>
+
+        <LayoutGroup>
+          <div className="w-full">
+            <p className="text-sm text-slate-400 uppercase tracking-wider mb-4 text-center font-semibold">Hover to Expand • Click for Details</p>
+            <div className="flex flex-col lg:flex-row gap-4 h-auto lg:h-[450px]">
+              {processSteps.map((step) => (
+                <ProcessStepCard key={step.id} step={step} isHovered={hoveredProcessStep === step.id} setHovered={setHoveredProcessStep} />
+              ))}
+            </div>
+          </div>
+        </LayoutGroup>
+      </section>
+
+      {/* 3. The Design Evolution */}
+      <section className="space-y-16">
+        <div className="text-left mb-8">
+           <h3 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
+              <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm">03</span>
+              The Design Evolution
+           </h3>
+        </div>
+        
+        {designEvolutionData.map((phase, index) => (
+          <div key={index} className="grid lg:grid-cols-2 gap-12 items-center mb-24 last:mb-0">
+            <div className={index % 2 === 1 ? "lg:order-2" : ""}>
+              <div className="flex items-center gap-4 mb-4">
+                <div className="w-12 h-1 bg-emerald-500"></div>
+                <span className="text-emerald-600 font-bold uppercase tracking-widest text-xs">Phase 0{index + 1}</span>
+              </div>
+              <h4 className="text-3xl font-black text-slate-900 mb-4 leading-tight">{phase.title}</h4>
+              <p className="text-slate-600 leading-relaxed text-lg mb-8">{phase.description}</p>
+            </div>
+            <div className={`${index % 2 === 1 ? "lg:order-1" : ""} grid gap-6 grid-cols-1`}>
+              {phase.images.map((img, i) => (
+                <BentoImage key={i} item={img} />
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+
+      {/* 4. Technical Deep Dive (Tabs) */}
+      <section className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-100">
+         <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+           <div>
+              <h3 className="text-2xl font-bold text-slate-900 gap-3 flex items-center">
+                  <span className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 text-sm">04</span>
+                  Technical Analysis
+              </h3>
+              <p className="text-slate-500 mt-2 max-w-2xl">Technical Analysis of Life Cycle Assessment (LCA), Systems Thinking, and Risk Management.</p>
+           </div>
+           <div className="flex gap-2 bg-slate-100 p-1 rounded-lg">
+              {['lca', 'system', 'risk'].map(tab => (
+                  <button 
+                    key={tab}
+                    onClick={() => setActiveTechTab(tab)}
+                    className={`px-4 py-2 rounded-md text-xs font-bold uppercase tracking-wider transition-all ${activeTechTab === tab ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
+                  >
+                    {tab === 'lca' ? 'Materials (LCA)' : tab === 'system' ? 'Systems' : 'Risk Matrix'}
+                  </button>
+              ))}
+           </div>
+         </div>
+
+         <div className="min-h-[400px]">
+            <AnimatePresence mode='wait'>
+               {activeTechTab === 'lca' && (
+                  <motion.div 
+                     key="lca"
+                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                     className="grid md:grid-cols-3 gap-6"
+                  >
+                     {lcaData.map((item, i) => (
+                        <div key={i} className="p-6 rounded-2xl border border-slate-100 bg-slate-50 hover:border-emerald-200 hover:shadow-md transition-all group">
+                           <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-emerald-600 shadow-sm mb-4 group-hover:scale-110 transition-transform">{item.icon}</div>
+                           <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{item.component}</div>
+                           <h4 className="text-lg font-bold text-slate-900 mb-3">{item.material}</h4>
+                           <p className="text-sm text-slate-600 leading-relaxed">{item.reason}</p>
+                        </div>
+                     ))}
+                     <div className="md:col-span-3 mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-800 flex items-start gap-3">
+                        <Recycle size={20} className="shrink-0 mt-0.5"/>
+                        <p>Brass was chosen over Nickel due to lower eco-toxicity (0.25 €/kg vs 14.06 €/kg). SBR tubing was selected for superior chemical resistance over natural rubber.</p>
+                     </div>
+                  </motion.div>
+               )}
+
+               {activeTechTab === 'system' && (
+                  <motion.div 
+                     key="system"
+                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                  >
+                     <div className="grid md:grid-cols-2 gap-8 items-center">
+                        <div className="prose prose-sm text-slate-600">
+                           <h4 className="text-lg font-bold text-slate-900 mb-4">Causal Loop Analysis</h4>
+                           <p className="mb-4">
+                             The causal loop diagram describes the consequences of the pipe endoscopes that apply to the city of Kelowna and some surrounding areas. In particular, public health, stakeholder satisfaction, resident and safety demand, regulatory and municipal pressure, equipment deployment, operational constraints, and contractor acceptance are all taken into account. However, financial aspects, lead remediation actions, and broader infrastructure policy were excluded to focus on the device's immediate impact.
+                           </p>
+                           <ul className="space-y-4 list-none pl-0">
+                              <li className="flex gap-3">
+                                 <div className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold shrink-0">R</div>
+                                 <span><strong>Reinforcing Loop</strong></span>
+                              </li>
+                              <li className="flex gap-3">
+                                 <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold shrink-0">B</div>
+                                 <span><strong>Balancing Loop</strong></span>
+                              </li>
+                           </ul>
+                        </div>
+                        <div className="bg-slate-100 rounded-2xl p-4 border border-slate-200 overflow-hidden">
+                           <img src="/SystemDiagramVisualization.png" alt="System Diagram" className="w-full h-auto rounded-lg shadow-sm" />
+                        </div>
+                     </div>
+                  </motion.div>
+               )}
+
+               {activeTechTab === 'risk' && (
+                  <motion.div 
+                     key="risk"
+                     initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+                     className="space-y-8"
+                  >
+                     {/* HEATMAP */}
+                     <div className="flex justify-center items-center bg-slate-100 rounded-3xl p-4 border border-slate-200">
+                        <img src="/risk-matrix.png" alt="Risk Assessment Matrix" className="max-w-full h-auto rounded-xl shadow-sm" />
+                     </div>
+
+                     {/* TABLE */}
+                     <div className="bg-slate-50 border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+                        <div className="p-6 border-b border-slate-200 bg-white">
+                           <h4 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                              <AlertTriangle size={20} className="text-emerald-500" />
+                              Detailed Risk Register
+                           </h4>
+                           <p className="text-sm text-slate-500 mt-1">A comprehensive breakdown of identified risks, their classification, and mitigation strategies.</p>
+                        </div>
+                        <div className="overflow-x-auto">
+                           <table className="w-full text-sm text-left">
+                              <thead className="text-xs text-slate-500 uppercase bg-slate-100 border-b border-slate-200">
+                                 <tr>
+                                    <th className="px-6 py-4 font-bold">ID</th>
+                                    <th className="px-6 py-4 font-bold">Risk Description</th>
+                                    <th className="px-6 py-4 font-bold">Category</th>
+                                    <th className="px-6 py-4 font-bold text-center">Score</th>
+                                    <th className="px-6 py-4 font-bold text-center">Level</th>
+                                    <th className="px-6 py-4 font-bold text-right">Strategy</th>
+                                 </tr>
+                              </thead>
+                              <tbody className="divide-y divide-slate-100">
+                                 {detailedRiskData.map((row) => (
+                                    <tr key={row.id} className="hover:bg-white transition-colors group">
+                                       <td className="px-6 py-4 font-mono text-slate-400 group-hover:text-emerald-600 transition-colors">{row.id}</td>
+                                       <td className="px-6 py-4 text-slate-700 font-medium">{row.desc}</td>
+                                       <td className="px-6 py-4 text-slate-500"><span className="px-2 py-1 bg-slate-100 rounded text-xs border border-slate-200">{row.cat}</span></td>
+                                       <td className="px-6 py-4 text-center font-mono text-slate-500">{row.score}</td>
+                                       <td className="px-6 py-4 text-center">
+                                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                             row.level === 'High' ? 'bg-red-100 text-red-800' :
+                                             row.level === 'Medium' ? 'bg-amber-100 text-amber-800' :
+                                             'bg-emerald-100 text-emerald-800'
+                                          }`}>
+                                             {row.level}
+                                          </span>
+                                       </td>
+                                       <td className="px-6 py-4 text-right">
+                                          <span className={`text-xs font-bold uppercase tracking-wider ${
+                                             row.strategy === 'Mitigate' ? 'text-blue-600' :
+                                             row.strategy === 'Avoid' ? 'text-purple-600' :
+                                             'text-slate-500'
+                                          }`}>
+                                             {row.strategy}
+                                          </span>
+                                       </td>
+                                    </tr>
+                                 ))}
+                              </tbody>
+                           </table>
+                        </div>
+                     </div>
+                  </motion.div>
+               )}
+            </AnimatePresence>
+         </div>
+      </section>
+
+      {/* 5. Implementation Plan (Timeline) */}
+      <section className="relative">
+         <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-slate-200 hidden md:block"></div>
+         <h3 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3 pl-0 md:pl-0">
+            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm relative z-10">05</span>
+            Implementation Strategy
+         </h3>
+         
+         <div className="space-y-8">
+            <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm relative z-10 md:ml-16">
+               <div className="flex flex-col md:flex-row gap-8 items-center">
+                  <div className="flex-1">
+                     <h4 className="text-xl font-bold text-slate-900 mb-2">Critical Path Analysis</h4>
+                     <p className="text-slate-600 mb-4">Total Project Duration: <strong>121.5 Days</strong>.</p>
+                     <div className="space-y-3">
+                        {timelineEvents.map((event, i) => (
+                           <div key={i} className="flex items-center gap-4 text-sm">
+                              <span className="w-24 font-bold text-slate-400 text-right">{event.phase}</span>
+                              <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                 <motion.div 
+                                    initial={{ width: 0 }} 
+                                    whileInView={{ width: `${(parseInt(event.days)/30)*100}%` }} 
+                                    className="h-full bg-blue-500 rounded-full"
+                                 />
+                              </div>
+                              <span className="w-16 font-mono text-slate-500">{event.days}</span>
+                           </div>
+                        ))}
+                     </div>
+                  </div>
+                  <div className="w-full md:w-64 bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                     <h5 className="font-bold text-slate-900 mb-4 flex items-center gap-2"><CalendarClock size={16}/> Key Milestones</h5>
+                     <ul className="space-y-3 text-sm text-slate-600">
+                        <li className="flex justify-between"><span>Design Freeze</span> <span className="text-slate-400">Day 22</span></li>
+                        <li className="flex justify-between"><span>Procurement</span> <span className="text-slate-400">Day 35</span></li>
+                        <li className="flex justify-between"><span>Testing</span> <span className="text-slate-400">Day 50</span></li>
+                        <li className="flex justify-between"><span>Final Signoff</span> <span className="text-slate-400">Day 91</span></li>
+                     </ul>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </section>
+
+      {/* 6. Future Implementation (NEW SECTION) */}
+      <section className="bg-slate-900 text-white rounded-3xl p-8 md:p-12 shadow-xl relative overflow-hidden">
+          <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="p-3 bg-emerald-500/20 text-emerald-400 rounded-xl"><Truck size={24}/></div>
+                <h3 className="text-2xl font-bold">Future Implementation Plan</h3>
+              </div>
+              <div className="grid md:grid-cols-2 gap-12">
+                <div>
+                    <h4 className="font-bold text-lg mb-4 text-emerald-400">Organizational Structure</h4>
+                    <ul className="space-y-3 text-slate-300 text-sm">
+                      <li className="flex items-start gap-2"><CheckCircle size={16} className="mt-1 shrink-0 text-emerald-500"/> <span><strong>Executive Team:</strong> Original 5 members oversee strategy.</span></li>
+                      <li className="flex items-start gap-2"><CheckCircle size={16} className="mt-1 shrink-0 text-emerald-500"/> <span><strong>Operations:</strong> Managing manufacturing and field logistics.</span></li>
+                      <li className="flex items-start gap-2"><CheckCircle size={16} className="mt-1 shrink-0 text-emerald-500"/> <span><strong>Field Technicians:</strong> Two-person crews for on-site deployment.</span></li>
+                      <li className="flex items-start gap-2"><CheckCircle size={16} className="mt-1 shrink-0 text-emerald-500"/> <span><strong>Engineering:</strong> Ongoing R&D for mechanical/electrical refinements.</span></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 className="font-bold text-lg mb-4 text-emerald-400">Critical Path</h4>
+                    <div className="flex items-center gap-4 mb-2">
+                      <div className="text-4xl font-black">121.5</div>
+                      <div className="text-sm text-slate-400 uppercase tracking-widest">Days to<br/>Launch</div>
+                    </div>
+                </div>
+              </div>
+          </div>
+          {/* Decorative BG */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] translate-x-1/3 -translate-y-1/3"></div>
+      </section>
+      
+      {/* 7. Final Product Header & Video */}
+      <section className="space-y-8 mt-24">
+        <div className="flex items-center gap-3">
+           <div className="flex items-center justify-center w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 text-sm font-bold">07</div>
+           <h3 className="text-2xl font-bold text-slate-900">Final Product</h3>
+        </div>
+        
+        <div className="bg-black rounded-3xl p-4 md:p-8 overflow-hidden relative group">
+           <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 z-10 pointer-events-none"></div>
+           <div className="relative z-20 flex items-center justify-center w-full aspect-video rounded-2xl overflow-hidden bg-slate-900 shadow-2xl border border-white/10">
+              <iframe 
+                width="100%" 
+                height="100%" 
+                src="https://www.youtube.com/embed/-S5COSTvpfs?si=bE_1Xn_xTzQjF5t-" 
+                title="Project Video" 
+                frameBorder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowFullScreen
+                className="w-full h-full"
+              ></iframe>
+           </div>
+        </div>
+      </section>
+
+    </motion.div>
+  );
+};
+
+export default function DaniyalPortfolio() {
+  const [activeTab, setActiveTab] = useState('home');
+  const [viewingProject, setViewingProject] = useState(null);
+  // NEW STATE: For managing the PDF overlay
+  const [selectedPdf, setSelectedPdf] = useState(null);
+  const [quote, setQuote] = useState(quotesData[0]);
   
   // Pipe Mode States
-  const [pipeMode, setPipeMode] = useState(false); // Press L to toggle
-
-  // Scroll Progress
+  const [pipeMode, setPipeMode] = useState(false); 
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
-
-  // Spotlight / Pipe Mode Effect
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
@@ -479,7 +1117,6 @@ export default function DaniyalPortfolio() {
     mouseY.set(clientY - top);
   }
 
-  // --- Toggle Pipe Mode on 'L' key press ---
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key.toLowerCase() === 'l') {
@@ -489,8 +1126,17 @@ export default function DaniyalPortfolio() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+  
+  useEffect(() => {
+    setQuote(quotesData[Math.floor(Math.random() * quotesData.length)]);
+  }, []);
 
-  useEffect(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, [activeTab]);
+  useEffect(() => { 
+    window.scrollTo({ top: 0, behavior: 'smooth' }); 
+    if (activeTab !== 'project') {
+      setViewingProject(null); 
+    }
+  }, [activeTab]);
 
   return (
     <div 
@@ -499,39 +1145,28 @@ export default function DaniyalPortfolio() {
     >
       <ForceFieldBackground />
 
-      {/* --- PIPE MODE / FLASHLIGHT OVERLAY --- */}
+      {/* RENDER PDF VIEWER IF A PDF IS SELECTED */}
+      {selectedPdf && (
+        <PDFViewer file={selectedPdf} onClose={() => setSelectedPdf(null)} />
+      )}
+
       {pipeMode && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           className="fixed inset-0 z-[9999] pointer-events-none bg-black transition-colors duration-700"
-          style={{
-            background: useMotionTemplate`radial-gradient(circle 250px at ${mouseX}px ${mouseY}px, transparent 0%, rgba(2, 6, 23, 0.98) 20%)`
-          }}
+          style={{ background: useMotionTemplate`radial-gradient(circle 250px at ${mouseX}px ${mouseY}px, transparent 0%, rgba(2, 6, 23, 0.98) 20%)` }}
         />
       )}
 
-      {/* Standard Spotlight Background */}
       {!pipeMode && (
         <motion.div
           className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-300"
-          style={{
-            background: useMotionTemplate`
-              radial-gradient(
-                650px circle at ${mouseX}px ${mouseY}px,
-                rgba(16, 185, 129, 0.05),
-                transparent 80%
-              )
-            `,
-          }}
+          style={{ background: useMotionTemplate`radial-gradient(650px circle at ${mouseX}px ${mouseY}px, rgba(16, 185, 129, 0.05), transparent 80%)` }}
         />
       )}
 
-      {/* Scroll Progress Bar */}
       <motion.div className="fixed top-0 left-0 right-0 h-1 bg-emerald-500 origin-left z-[100]" style={{ scaleX }} />
 
-      {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 backdrop-blur-lg bg-white/80 border-b border-white/20 shadow-sm transition-all duration-300">
         <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
           <motion.button 
@@ -553,7 +1188,7 @@ export default function DaniyalPortfolio() {
                 {activeTab === tab && (
                   <motion.div layoutId="bubble" className="absolute inset-0 bg-slate-900 rounded-full" transition={{ type: 'spring', bounce: 0.15, duration: 0.6 }} />
                 )}
-                <span className="relative z-10 capitalize">{tab}</span>
+                <span className="relative z-10 capitalize">{tab === 'project' ? 'Projects' : tab}</span>
               </MagneticButton>
             ))}
           </div>
@@ -565,13 +1200,9 @@ export default function DaniyalPortfolio() {
         </div>
       </nav>
 
-      {/* MAIN CONTENT WRAPPER */}
-      <motion.main 
-        className="relative z-10 pt-32 pb-20 px-6 max-w-6xl mx-auto min-h-screen flex flex-col"
-      >
+      <motion.main className="relative z-10 pt-32 pb-20 px-6 max-w-6xl mx-auto min-h-screen flex flex-col">
         <AnimatePresence mode='wait'>
           
-          {/* ================= HOME PAGE ================= */}
           {activeTab === 'home' && (
             <motion.div key="home" initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition} className="flex flex-col items-center justify-center flex-grow text-center">
               <motion.div variants={containerStagger} initial="hidden" animate="show" className="max-w-4xl mx-auto">
@@ -586,12 +1217,12 @@ export default function DaniyalPortfolio() {
                 </motion.div>
                 
                 <motion.h1 variants={itemFadeUp} className="text-5xl md:text-7xl font-black text-slate-900 mb-6 leading-[1.1] tracking-tight">
-                  "The way to succeed is to <br className="hidden md:block"/>
+                  "{quote.prefix} <br className="hidden md:block"/>
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 animate-gradient-x bg-[length:200%_auto]">
-                    double your failure rate.
+                    {quote.highlight}
                   </span>"
                 </motion.h1>
-                <motion.p variants={itemFadeUp} className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-8">— Thomas J. Watson</motion.p>
+                <motion.p variants={itemFadeUp} className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-8">— {quote.author}</motion.p>
                 
                 <motion.p variants={itemFadeUp} className="text-lg md:text-2xl text-slate-600 max-w-2xl mx-auto mb-12 leading-relaxed font-light">
                   Hi, I'm <strong className="text-slate-900 font-bold">Daniyal Hashmi</strong>. 
@@ -602,10 +1233,11 @@ export default function DaniyalPortfolio() {
                   <MagneticButton onClick={() => setActiveTab('project')} className="group px-8 py-4 bg-slate-900 text-white rounded-2xl font-semibold shadow-xl shadow-slate-900/20 hover:scale-105 hover:bg-emerald-600 transition-all duration-300 flex items-center justify-center gap-2">
                     View Design Project <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                   </MagneticButton>
-                  <MagneticButton>
-                    <a href={pdfUrl} download className="group px-8 py-4 bg-white/80 backdrop-blur-sm text-slate-900 border border-white/50 rounded-2xl font-semibold shadow-lg hover:border-emerald-200 hover:text-emerald-700 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
-                      <Download size={18} className="group-hover:-translate-y-1 transition-transform"/> Download Full Report
-                    </a>
+                  {/* UPDATED: Button now opens the PDF viewer instead of downloading */}
+                  <MagneticButton onClick={() => setSelectedPdf(pdfUrl)}>
+                    <button className="group px-8 py-4 bg-white/80 backdrop-blur-sm text-slate-900 border border-white/50 rounded-2xl font-semibold shadow-lg hover:border-emerald-200 hover:text-emerald-700 hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2">
+                      <Eye size={18} className="group-hover:scale-110 transition-transform"/> View Full Report
+                    </button>
                   </MagneticButton>
                 </motion.div>
 
@@ -618,7 +1250,6 @@ export default function DaniyalPortfolio() {
             </motion.div>
           )}
 
-          {/* ================= ABOUT PAGE ================= */}
           {activeTab === 'about' && (
             <motion.div key="about" initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition} className="space-y-16">
               <div className="grid md:grid-cols-12 gap-12 items-start">
@@ -685,290 +1316,16 @@ export default function DaniyalPortfolio() {
             </motion.div>
           )}
 
-          {/* ================= PROJECT PAGE ================= */}
           {activeTab === 'project' && (
-            <motion.div key="project" initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition} className="space-y-24">
-              {/* Header */}
-              <header className="bg-slate-900 text-white rounded-[2.5rem] p-10 md:p-20 relative overflow-visible shadow-2xl">
-                <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-emerald-500/20 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[80px] translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
-                <div className="relative z-10 max-w-4xl">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold uppercase tracking-wider text-[10px] mb-6"><Layers size={12}/> APSC 169 Team 02</div>
-                  <h2 className="text-4xl md:text-6xl font-black mb-8 leading-tight">Lead Service Line <br/> Detection</h2>
-                  <p className="text-slate-300 text-xl leading-relaxed max-w-2xl font-light">Designing a remote, portable, and low-maintenance solution to identify lead service line infrastructure without excavation.</p>
-                  
-                  {/* --- ABSTRACT DROPDOWN --- */}
-                  <ProjectAbstract />
-                </div>
-              </header>
-
-              {/* 1. The Challenge */}
-              <section className="grid md:grid-cols-2 gap-12 items-center">
-                <div className="prose prose-lg text-slate-600">
-                  <h3 className="text-2xl font-bold text-slate-900 flex items-center gap-3"><span className="flex items-center justify-center w-8 h-8 rounded-full bg-red-100 text-red-600 text-sm">01</span>The Challenge</h3>
-                  <p className="text-justify">
-                    <strong>Why we did it:</strong> Lead contamination in drinking water remains a critical public health threat. Traditional methods of detection (excavation) are disruptive, expensive, and environmentally damaging.
-                  </p>
-                  <p className="text-justify">
-                    <strong>Objective:</strong> To design a device that is remote, portable, safe for humans/environment, and costs under $100 to prototype.
-                  </p>
-                </div>
-                
-                {/* Stats Grid */}
-                <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 text-center">
-                        <p className="text-4xl font-black text-red-500 mb-1">10M+</p>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Lead Pipes in N. America</p>
-                    </div>
-                    <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 text-center">
-                        <p className="text-4xl font-black text-red-500 mb-1">$5k+</p>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Cost per Excavation</p>
-                    </div>
-                     <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 text-center">
-                        <p className="text-4xl font-black text-red-500 mb-1">50%</p>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Euro Properties at Risk</p>
-                    </div>
-                    <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 text-center">
-                        <p className="text-4xl font-black text-emerald-500 mb-1">~$150</p>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Target Device Cost</p>
-                    </div>
-                </div>
-              </section>
-
-              {/* 2. The Engineering Process */}
-              <section className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-100">
-                <h3 className="text-2xl font-bold text-slate-900 mb-4 flex items-center gap-3"><span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm">02</span>The Engineering Process</h3>
-                
-                {/* INTRO PARAGRAPH FOR PROCESS */}
-                <p className="text-slate-600 mb-8 max-w-4xl text-lg leading-relaxed">
-                  We utilized a structured engineering design process to tackle the complex issue of Lead Service Line detection. By moving methodically from problem definition to final implementation, we ensured our solution was not just innovative, but feasible, safe, and economically viable.
-                </p>
-
-                <LayoutGroup>
-                  <div className="w-full">
-                    <p className="text-sm text-slate-400 uppercase tracking-wider mb-4 text-center font-semibold">Hover to Expand • Click for Details</p>
-                    <div className="flex flex-col lg:flex-row gap-4 h-auto lg:h-[450px]">
-                      {processSteps.map((step) => (
-                        <ProcessStepCard key={step.id} step={step} isHovered={hoveredProcessStep === step.id} setHovered={setHoveredProcessStep} />
-                      ))}
-                    </div>
-                  </div>
-                </LayoutGroup>
-              </section>
-
-              {/* 3. The Design Evolution (REWORKED) */}
-              <section className="space-y-16">
-                <div className="text-left mb-8">
-                   <h3 className="text-3xl font-bold text-slate-900 flex items-center gap-3">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm">03</span>
-                      The Design Evolution
-                   </h3>
-                   <p className="text-slate-500 mt-2 max-w-2xl ml-11">A journey from 39 concepts to a single, validated solution.</p>
-                </div>
-                
-                {designEvolutionData.map((phase, index) => (
-                  <div key={index} className="grid lg:grid-cols-2 gap-12 items-center mb-24 last:mb-0">
-                    <div className={index % 2 === 1 ? "lg:order-2" : ""}>
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-1 bg-emerald-500"></div>
-                        <span className="text-emerald-600 font-bold uppercase tracking-widest text-xs">Phase 0{index + 1}</span>
-                      </div>
-                      <h4 className="text-3xl font-black text-slate-900 mb-4 leading-tight">{phase.title}</h4>
-                      <p className="text-slate-600 leading-relaxed text-lg mb-8">{phase.description}</p>
-                    </div>
-                    <div className={`${index % 2 === 1 ? "lg:order-1" : ""} grid gap-4 grid-cols-2`}>
-                      {phase.images.map((img, i) => (
-                        <BentoImage key={i} item={img} />
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </section>
-
-              {/* 4. Technical Deep Dive (Tabs) */}
-              <section className="bg-white rounded-3xl p-8 md:p-12 shadow-sm border border-slate-100">
-                 <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
-                   <div>
-                      <h3 className="text-2xl font-bold text-slate-900 gap-3 flex items-center">
-                          <span className="flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-600 text-sm">04</span>
-                          Technical Analysis
-                      </h3>
-                      <p className="text-slate-500 mt-2 max-w-2xl">Rigorous engineering validation including Life Cycle Assessment (LCA), Systems Thinking, and Risk Management.</p>
-                   </div>
-                   <div className="flex gap-2 bg-slate-100 p-1 rounded-lg">
-                      {['lca', 'system', 'risk'].map(tab => (
-                          <button 
-                            key={tab}
-                            onClick={() => setActiveTechTab(tab)}
-                            className={`px-4 py-2 rounded-md text-xs font-bold uppercase tracking-wider transition-all ${activeTechTab === tab ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}
-                          >
-                            {tab === 'lca' ? 'Materials (LCA)' : tab === 'system' ? 'Systems' : 'Risk Matrix'}
-                          </button>
-                      ))}
-                   </div>
-                 </div>
-
-                 <div className="min-h-[400px]">
-                    <AnimatePresence mode='wait'>
-                       {activeTechTab === 'lca' && (
-                          <motion.div 
-                             key="lca"
-                             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                             className="grid md:grid-cols-3 gap-6"
-                          >
-                             {lcaData.map((item, i) => (
-                                <div key={i} className="p-6 rounded-2xl border border-slate-100 bg-slate-50 hover:border-emerald-200 hover:shadow-md transition-all group">
-                                   <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-emerald-600 shadow-sm mb-4 group-hover:scale-110 transition-transform">{item.icon}</div>
-                                   <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{item.component}</div>
-                                   <h4 className="text-lg font-bold text-slate-900 mb-3">{item.material}</h4>
-                                   <p className="text-sm text-slate-600 leading-relaxed">{item.reason}</p>
-                                </div>
-                             ))}
-                             <div className="md:col-span-3 mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100 text-sm text-blue-800 flex items-start gap-3">
-                                <Recycle size={20} className="shrink-0 mt-0.5"/>
-                                <p><strong>Eco-Analysis:</strong> Brass was chosen over Nickel due to lower eco-toxicity (0.25 €/kg vs 14.06 €/kg). SBR tubing was selected for superior chemical resistance over natural rubber.</p>
-                             </div>
-                          </motion.div>
-                       )}
-
-                       {activeTechTab === 'system' && (
-                          <motion.div 
-                             key="system"
-                             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                          >
-                             <div className="grid md:grid-cols-2 gap-8 items-center">
-                                <div className="prose prose-sm text-slate-600">
-                                   <h4 className="text-lg font-bold text-slate-900 mb-4">Causal Loop Analysis</h4>
-                                   <ul className="space-y-4 list-none pl-0">
-                                      <li className="flex gap-3">
-                                         <div className="w-6 h-6 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xs font-bold">R</div>
-                                         <span><strong>Reinforcing Loop:</strong> As the device's <em>Portability</em> increases, its <em>Remote Usability</em> increases, which further drives the need for compact design.</span>
-                                      </li>
-                                      <li className="flex gap-3">
-                                         <div className="w-6 h-6 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">B</div>
-                                         <span><strong>Balancing Loop:</strong> Increased <em>Device Durability</em> reduces the <em>Need for Maintenance</em>, which lowers long-term costs but increases initial material costs.</span>
-                                      </li>
-                                   </ul>
-                                </div>
-                                <div className="bg-slate-100 rounded-2xl p-4 border border-slate-200 overflow-hidden">
-                                   <img src="/SystemDiagramVisualization.png" alt="System Diagram" className="w-full h-auto rounded-lg shadow-sm" />
-                                </div>
-                             </div>
-                          </motion.div>
-                       )}
-
-                       {activeTechTab === 'risk' && (
-                          <motion.div 
-                             key="risk"
-                             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                          >
-                             <div className="flex justify-center items-center bg-slate-100 rounded-3xl p-4 border border-slate-200">
-                                <img src="/risk-matrix.png" alt="Risk Assessment Matrix" className="max-w-full h-auto rounded-xl shadow-sm" />
-                             </div>
-                          </motion.div>
-                       )}
-                    </AnimatePresence>
-                 </div>
-              </section>
-
-              {/* 5. Implementation Plan (Timeline) */}
-              <section className="relative">
-                 <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-slate-200 hidden md:block"></div>
-                 <h3 className="text-2xl font-bold text-slate-900 mb-8 flex items-center gap-3 pl-0 md:pl-0">
-                    <span className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 text-sm relative z-10">05</span>
-                    Implementation Strategy
-                 </h3>
-                 
-                 <div className="space-y-8">
-                    <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm relative z-10 md:ml-16">
-                       <div className="flex flex-col md:flex-row gap-8 items-center">
-                          <div className="flex-1">
-                             <h4 className="text-xl font-bold text-slate-900 mb-2">Critical Path Analysis</h4>
-                             <p className="text-slate-600 mb-4">Total Project Duration: <strong>121.5 Days</strong>.</p>
-                             <div className="space-y-3">
-                                {timelineEvents.map((event, i) => (
-                                   <div key={i} className="flex items-center gap-4 text-sm">
-                                      <span className="w-24 font-bold text-slate-400 text-right">{event.phase}</span>
-                                      <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
-                                         <motion.div 
-                                            initial={{ width: 0 }} 
-                                            whileInView={{ width: `${(parseInt(event.days)/30)*100}%` }} 
-                                            className="h-full bg-blue-500 rounded-full"
-                                         />
-                                      </div>
-                                      <span className="w-16 font-mono text-slate-500">{event.days}</span>
-                                   </div>
-                                ))}
-                             </div>
-                          </div>
-                          <div className="w-full md:w-64 bg-slate-50 p-6 rounded-2xl border border-slate-200">
-                             <h5 className="font-bold text-slate-900 mb-4 flex items-center gap-2"><CalendarClock size={16}/> Key Milestones</h5>
-                             <ul className="space-y-3 text-sm text-slate-600">
-                                <li className="flex justify-between"><span>Design Freeze</span> <span className="text-slate-400">Day 22</span></li>
-                                <li className="flex justify-between"><span>Procurement</span> <span className="text-slate-400">Day 35</span></li>
-                                <li className="flex justify-between"><span>Testing</span> <span className="text-slate-400">Day 50</span></li>
-                                <li className="flex justify-between"><span>Final Signoff</span> <span className="text-slate-400">Day 91</span></li>
-                             </ul>
-                          </div>
-                       </div>
-                    </div>
-                 </div>
-              </section>
-
-              {/* 6. Future Implementation (NEW SECTION) */}
-              <section className="bg-slate-900 text-white rounded-3xl p-8 md:p-12 shadow-xl relative overflow-hidden">
-                  <div className="relative z-10">
-                      <div className="flex items-center gap-3 mb-8">
-                        <div className="p-3 bg-emerald-500/20 text-emerald-400 rounded-xl"><Truck size={24}/></div>
-                        <h3 className="text-2xl font-bold">Future Implementation Plan</h3>
-                      </div>
-                      <div className="grid md:grid-cols-2 gap-12">
-                        <div>
-                            <h4 className="font-bold text-lg mb-4 text-emerald-400">Organizational Structure</h4>
-                            <ul className="space-y-3 text-slate-300 text-sm">
-                              <li className="flex items-start gap-2"><CheckCircle size={16} className="mt-1 shrink-0 text-emerald-500"/> <span><strong>Executive Team:</strong> Original 5 members oversee strategy.</span></li>
-                              <li className="flex items-start gap-2"><CheckCircle size={16} className="mt-1 shrink-0 text-emerald-500"/> <span><strong>Operations:</strong> Managing manufacturing and field logistics.</span></li>
-                              <li className="flex items-start gap-2"><CheckCircle size={16} className="mt-1 shrink-0 text-emerald-500"/> <span><strong>Field Technicians:</strong> Two-person crews for on-site deployment.</span></li>
-                              <li className="flex items-start gap-2"><CheckCircle size={16} className="mt-1 shrink-0 text-emerald-500"/> <span><strong>Engineering:</strong> Ongoing R&D for mechanical/electrical refinements.</span></li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 className="font-bold text-lg mb-4 text-emerald-400">Critical Path</h4>
-                            <div className="flex items-center gap-4 mb-2">
-                              <div className="text-4xl font-black">121.5</div>
-                              <div className="text-sm text-slate-400 uppercase tracking-widest">Days to<br/>Launch</div>
-                            </div>
-                            <p className="text-slate-400 text-sm leading-relaxed">
-                              From regulatory validation to final market advertising. Key milestones include prototype refinement, stakeholder review, and obtaining final municipal sign-offs.
-                            </p>
-                        </div>
-                      </div>
-                  </div>
-                  {/* Decorative BG */}
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-[80px] translate-x-1/3 -translate-y-1/3"></div>
-              </section>
-              
-              {/* 7. Project Video Embed */}
-              <section className="bg-black rounded-3xl p-4 md:p-8 overflow-hidden relative group mt-24">
-                 <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50 z-10 pointer-events-none"></div>
-                 <div className="relative z-20 flex items-center justify-center w-full aspect-video rounded-2xl overflow-hidden bg-slate-900 shadow-2xl border border-white/10">
-                    <iframe 
-                      width="100%" 
-                      height="100%" 
-                      src="https://www.youtube.com/embed/-S5COSTvpfs?si=bE_1Xn_xTzQjF5t-" 
-                      title="Project Video" 
-                      frameBorder="0" 
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                      allowFullScreen
-                      className="w-full h-full"
-                    ></iframe>
-                 </div>
-              </section>
-
+            <motion.div key="project" initial="initial" animate="in" exit="out" variants={pageVariants} transition={pageTransition}>
+              {viewingProject === 'lead-detection' ? (
+                <LeadDetectionProject onBack={() => setViewingProject(null)} />
+              ) : (
+                <ProjectsGallery onSelectProject={setViewingProject} onViewPdf={setSelectedPdf} />
+              )}
             </motion.div>
           )}
 
-          {/* ================= REFLECTION PAGE ================= */}
           {activeTab === 'reflection' && (
             <motion.div 
               key="reflection" 
@@ -978,24 +1335,38 @@ export default function DaniyalPortfolio() {
                <div className="text-center mb-16">
                   <h2 className="text-4xl font-black text-slate-900">Personal Reflection</h2>
                   <div className="h-1 w-20 bg-emerald-500 mx-auto mt-4 rounded-full"></div>
-                  <p className="text-slate-500 mt-4 max-w-2xl mx-auto">Reflecting on the APSC 169 design journey, ethical responsibilities, and future growth.</p>
                </div>
 
-               <div className="grid md:grid-cols-2 gap-8">
+               <div className="space-y-12">
                   {reflectionContent.map((item, i) => (
-                    <TiltCard key={i}>
-                       <div className="bg-white p-8 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 transition-all duration-500 h-full relative overflow-hidden group">
-                          <div className="absolute -right-4 -bottom-10 text-[10rem] font-black text-slate-50 opacity-50 pointer-events-none select-none transition-colors group-hover:text-emerald-50">
-                            0{i + 1}
-                          </div>
-                          <div className="mb-6 text-emerald-500 opacity-80 group-hover:opacity-100 transition-opacity">
-                             <Quote size={32} />
-                          </div>
-                          <p className="text-slate-600 leading-relaxed text-base relative z-10 font-light group-hover:text-slate-800 transition-colors text-justify">
-                            {item.a}
-                          </p>
-                       </div>
-                    </TiltCard>
+                    <motion.div 
+                      key={i}
+                      initial={{ opacity: 0, y: 40 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-100px" }}
+                      transition={{ duration: 0.6, delay: i * 0.1 }}
+                      className="group relative bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-200 shadow-sm hover:shadow-xl hover:border-emerald-300 transition-all duration-500 overflow-hidden"
+                    >
+                      <div className="absolute -right-6 -top-6 text-[12rem] font-black text-slate-50 group-hover:text-emerald-50/50 transition-colors pointer-events-none select-none z-0">
+                        0{i + 1}
+                      </div>
+
+                      <div className="relative z-10 flex flex-col md:flex-row gap-8 md:gap-12 items-start">
+                        <div className="shrink-0">
+                           <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform duration-500">
+                              {item.icon}
+                           </div>
+                        </div>
+                        <div className="flex-1">
+                           <h3 className="text-2xl md:text-3xl font-bold text-slate-900 mb-6 group-hover:text-emerald-700 transition-colors">
+                             {item.title}
+                           </h3>
+                           <div className="prose prose-lg text-slate-600 leading-relaxed">
+                             {item.content}
+                           </div>
+                        </div>
+                      </div>
+                    </motion.div>
                   ))}
                </div>
             </motion.div>
@@ -1003,7 +1374,6 @@ export default function DaniyalPortfolio() {
         </AnimatePresence>
       </motion.main>
 
-      {/* Footer */}
       <footer className="py-10 text-center text-slate-400 text-sm border-t border-slate-200/50 bg-white/50 backdrop-blur-md relative z-10">
         <p className="mb-2">© 2025 Daniyal Hashmi</p>
         <p>APSC 169 • School of Engineering • UBC Okanagan</p>
@@ -1057,14 +1427,12 @@ function ProcessStepCard({ step, isHovered, setHovered }) {
         transition={{ type: 'spring', stiffness: 200, damping: 25 }}
         className="relative overflow-hidden rounded-2xl border border-slate-200 bg-white cursor-pointer shadow-sm hover:shadow-lg transition-shadow duration-300 group min-w-[100px]"
       >
-        {/* VIEW 1: IDLE */}
         <motion.div animate={{ opacity: isHovered ? 0 : 1 }} className="absolute inset-0 flex flex-col items-center justify-center p-4">
           <div className="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-400 mb-3">{step.icon}</div>
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Step 0{step.id}</span>
           <h4 className="text-sm font-bold text-slate-700 text-center">{step.title}</h4>
         </motion.div>
 
-        {/* VIEW 2: HOVER */}
         <motion.div animate={{ opacity: isHovered ? 1 : 0 }} className="absolute inset-0 p-8 flex flex-col justify-between bg-gradient-to-br from-slate-50 to-white overflow-hidden">
           <div className="flex justify-between items-start min-w-[300px]"> 
             <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mb-4 shadow-inner">{step.icon}</div>
@@ -1082,7 +1450,6 @@ function ProcessStepCard({ step, isHovered, setHovered }) {
 
       <AnimatePresence>
         {isOpen && (
-          // FIX: Changed container to 'fixed inset-0 z-[9999]' to center on screen (viewport) not page flow
           <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsOpen(false)} className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" />
             <motion.div layoutId={`modal-card-${step.id}`} className="w-full max-w-2xl bg-white rounded-3xl overflow-hidden relative z-10 shadow-2xl flex flex-col max-h-[80vh]">
