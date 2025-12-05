@@ -117,7 +117,7 @@ const PDFViewer = ({ file, onClose }) => {
 
 // --- Configuration ---
 // Note: Paths are relative to the 'public' folder (root of the website)
-const pdfUrl = "/public/AllReports.pdf"; 
+const pdfUrl = "/AllReports.pdf"; 
 const email = "daniyalzahidhashmi@hotmail.com";
 const linkedinUrl = "https://www.linkedin.com/in/daniyal-hashmi101";
 
@@ -323,32 +323,32 @@ const processSteps = [
 const designEvolutionData = [
   {
     title: "Ideation & Team Dynamics",
-    description: "We began by using the brainstorming technique which included listing out immediate concepts like 'talking pipes' or 'spikes in the ground'. We also utilised other techniques during this process, such as inverses, and extremes. These techniques included solving the reverse problem or using extreme solutions to break design fixation. Then finally used the C-Sketch method to generate 5 refined ideas to add onto our list of brainstormed ideas. Adding up to 39 unique and diverse ideas, ranging from Ground Penetrating Radars, to time machines.",
+    description: "We began by using the brainstorming technique which included listing out immediate far fetched concepts like 'talking pipes' or 'poking spikes in the ground'. We also utilised other techniques during this process, such as inverses, and extremes. These techniques included solving the reverse problem (Method of Inverses) or using extreme solutions to mkae sure our team was not fixate on a single solution. Then finally used the C-Sketch method to generate 5 creative ideas to add onto our list of brainstormed ideas. Adding up to 39 unique and diverse ideas, ranging from Ground Penetrating Radars, to time machines.",
     images: [
-      { src: "/mindmap.png", title: "Problem Space Mind Map", desc: "Our initial roadmap connecting LSLs to potential detection vectors: Acoustic, Chemical, and Mechanical." },
-      { src: "/All C_sketches.png", title: "C-Sketch Output", desc: "The raw output of our rapid ideation session. 39 distinct concepts were generated here." },
-      { src: "/Working_Together_2.jpg", title: "Team Collaboration", desc: "We utilized critical friend sessions to ruthlessly evaluate feasibility while maintaining a supportive team environment." }
+      { src: "/mindmap.png", title: "Ideation Process Mind Map", desc: "This midmap highlights the organized, and well though out ideation process that makes use of various ideation techniques, and considers various factors. When creating this, had to make sure this process would be benificial to coming up with the best solutiion." },
+      { src: "/All C_sketches.png", title: "C-Sketch Output", desc: "A collection of the 5 ideas generated during the C-Sketch method. These ideas are diverse, creative, and stopped anchoring on certain ideas." },
+      { src: "/Working_Together_2.jpg", title: "Team Collaboration", desc: "Team collaboration was necessaru throughout this project. We had to have clear communication with each other, and have an efficient, and performing team dynamic." }
     ]
   },
   {
     title: "The 'Pipe Car' Concept (My Model)",
-    description: "Our initial top contender was the 'Pipe Vehicle'. I created this low-fidelity CAD model to visualize how a motorized rover could navigate 19mm pipes. It could carry cameras, sensors, or scrapers. However, during virtual testing, we realized that motors small enough to fit in the pipe lacked the torque required to drive wheels in a wet, pressurized environment. This critical feasibility failure forced us to pivot.",
+    description: "Our initial top contender was the 'Pipe Vehicle'. I created this low-fidelity CAD model to visualize how a motorized rover could navigate 19mm pipes. It could carry cameras, sensors, or scrapers. However, during virtual testing, we realized that motors small enough to fit in the pipe lacked the torque required, or just did not exist. This critical feasibility failure forced us to pivot to a more feasible solutions.",
     images: [
-      { src: "/PipeCar_Low_Fidelity_CAD_View3.png", title: "My CAD: Pipe Car", desc: "I modeled this concept to test packaging constraints. The wheelbase calculations revealed it would struggle with traction in vertical pipe sections." }
+      { src: "/PipeCar_Low_Fidelity_CAD_View3.png", title: "My CAD: Pipe Car", desc: "I made this low-fidelity 3D model of the chassis of the pipe car to visualise size, dimensions, and overall functionality. This virtul prototype was necessary for us to understand that the pipe car was not feasible for out project." }
     ]
   },
   {
     title: "The Pivot: Scraper Endoscope",
     description: "We moved to a simpler, more promising solution: The Piper Endoscope. I developed this low-fidelity prototype (prototype 1) to visualize how it would look, and specifically visualize the head and its functionality. By selecting a material hard enough on the Mohs Hardness scale that can scratch lead, but no other commonly used pipe material, we use this as a mechanical test, which could even retrieve samples to be tested for verification.",
     images: [
-      { src: "/PipeEndoscope_Proto1_View1.png", title: "My CAD: Proto 1", desc: "I created this virtual flex test to ensure the device could navigate 90-degree bends without kinking." }
+      { src: "/PipeEndoscope_Proto1_View1.png", title: "My CAD: Proto 1", desc: "I created this render/3D model of the pipe endoscope to communicate how the it would look, and more importantly, this gave us a good idea of what we could do for this solution." }
     ]
   },
   {
     title: "Final Design & Planning",
-    description: "The final design (Prototype 3) integrated a 6-wheel centering chassis to stabilize the scratch tool. This ensures the tool applies even pressure regardless of orientation. To ensure successful delivery, I developed a comprehensive Gantt Chart outlining a 121.5-day implementation plan, identifying the critical path from regulatory validation to final market launch.",
+    description: "The final design (Prototype 3) integrated a 6-wheel centering chassis for the head to stabilize the scratch tool that could be retracted or extend as using a mechanical wire. This ensures the tool applies even pressure regardless of orientation. To ensure successful delivery, I developed a comprehensive Gantt Chart outlining a 121 days implementation plan, identifying the critical path from regulatory validation to final marketing and launch.",
     images: [
-      { src: "/PipeEndoscope_Proto3_View2.png", title: "Final Design Internal", desc: "Transparent view of the final 6-wheel chassis. This mechanism ensures the scratch tool remains centered in the pipe." },
+      { src: "/PipeEndoscope_Proto3_View2.png", title: "Final Design", desc: "Transparent view of the final head chassis. This mechanism ensures the scratch tool remains centered in the pipe." },
       { src: "/GanttChart.png", title: "My Project Management", desc: "I created this Gantt Chart to map our Critical Path (121.5 days), managing dependencies between R&D, procurement, and testing." }
     ]
   }
