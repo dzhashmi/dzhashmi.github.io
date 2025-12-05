@@ -103,7 +103,7 @@ const PDFViewer = ({ file, onClose }) => {
 
 // --- Configuration ---
 // This is the main report file
-const pdfUrl = "/report.pdf"; 
+const pdfUrl = "/public/report.pdf"; 
 const email = "daniyalzahidhashmi@hotmail.com";
 const linkedinUrl = "https://www.linkedin.com/in/daniyal-hashmi101";
 
