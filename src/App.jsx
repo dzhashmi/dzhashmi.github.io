@@ -18,15 +18,26 @@ import {
   Maximize2, ExternalLink, ArrowLeft, Hammer, Disc, Home, Volume2, Eye
 } from 'lucide-react';
 
-// --- PDF VIEWER COMPONENT (INLINE FOR PREVIEW) ---
-// [LOCAL SETUP] UNCOMMENT THESE 3 LINES IN YOUR LOCAL PROJECT IF USING react-pdf
+// --- PDF VIEWER SETUP ---
+// [LOCAL SETUP] STEP 1: UNCOMMENT THESE 4 LINES LOCALLY
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+import 'react-pdf/dist/Page/TextLayer.css';
+
+// [LOCAL SETUP] STEP 2: UNCOMMENT THIS BLOCK TO FIX THE WORKER
+if (typeof pdfjs !== 'undefined') {
+  pdfjs.GlobalWorkerOptions.workerSrc = new URL(
+    'pdfjs-dist/build/pdf.worker.min.mjs',
+    import.meta.url,
+  ).toString();
+}
 
 const PDFViewer = ({ file, onClose }) => {
   const [numPages, setNumPages] = useState(null);
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  // Safely encode the file path to handle spaces in filenames
+  const encodedFile = file ? encodeURI(file) : null;
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -46,7 +57,7 @@ const PDFViewer = ({ file, onClose }) => {
       <div 
         className="relative h-[90vh] w-full max-w-5xl overflow-y-auto rounded-lg bg-gray-900 p-2 shadow-2xl custom-scrollbar" 
         onClick={(e) => e.stopPropagation()} 
-        onContextMenu={(e) => e.preventDefault()} // PREVENTS RIGHT CLICK SAVE
+        onContextMenu={(e) => e.preventDefault()}
       >
         <button 
           onClick={onClose}
@@ -57,10 +68,10 @@ const PDFViewer = ({ file, onClose }) => {
 
         <div className="flex flex-col items-center justify-center min-h-full select-none pb-10">
           
-          {/* --- [LOCAL SETUP] UNCOMMENT THIS BLOCK FOR REAL PDF VIEWING --- */}
+          {/* --- [LOCAL SETUP] STEP 3: UNCOMMENT THIS <Document> BLOCK LOCALLY --- */}
           {
           <Document
-            file={file}
+            file={encodedFile}
             onLoadSuccess={onDocumentLoadSuccess}
             className="flex flex-col gap-4"
             loading={
@@ -72,7 +83,10 @@ const PDFViewer = ({ file, onClose }) => {
             error={
               <div className="text-red-400 p-10 text-center border border-red-900 rounded-lg bg-red-900/20">
                 <p className="text-xl font-bold">Unable to load PDF.</p>
-                <p className="text-sm mt-2 opacity-70">Ensure file exists in 'public' folder.</p>
+                <p className="text-sm mt-2 opacity-70">
+                  Ensure file exists in 'public' folder.
+                </p>
+                <p className="text-xs text-gray-500 mt-2">Target: {encodedFile}</p>
               </div>
             }
           >
@@ -80,8 +94,8 @@ const PDFViewer = ({ file, onClose }) => {
               <Page 
                 key={`page_${index + 1}`} 
                 pageNumber={index + 1} 
-                renderTextLayer={false}       // PREVENTS SELECTING TEXT
-                renderAnnotationLayer={false} // PREVENTS LINKS/DOWNLOADS
+                renderTextLayer={false}
+                renderAnnotationLayer={false}
                 className="shadow-2xl mb-4 border border-gray-800"
                 width={Math.min(windowWidth * 0.85, 900)}
               />
@@ -102,8 +116,8 @@ const PDFViewer = ({ file, onClose }) => {
 */
 
 // --- Configuration ---
-// This is the main report file
-const pdfUrl = "/public/report.pdf"; 
+// Note: Paths are relative to the 'public' folder (root of the website)
+const pdfUrl = "/public/AllReports.pdf"; 
 const email = "daniyalzahidhashmi@hotmail.com";
 const linkedinUrl = "https://www.linkedin.com/in/daniyal-hashmi101";
 
@@ -142,31 +156,31 @@ const quotesData = [
 ];
 
 // --- Other Projects Data ---
-// UPDATED: Added 'pdf' property mapped to your specific files
+// FILES MUST EXIST IN YOUR 'public' FOLDER EXACTLY AS NAMED BELOW
 const otherProjects = [
   {
     title: "Catapult Project",
     desc: "A mechanical design challenge focusing on trajectory and force.",
     icon: <Hammer size={24} />,
-    pdf: "/public/DaniyalHashmi-CatapultProject.pdf"
+    pdf: "/DaniyalHashmiCatapultProject.pdf"
   },
   {
     title: "Whistle Design",
     desc: "3D modeling and additive manufacturing of a functional whistle.",
     icon: <Volume2 size={24} />,
-    pdf: "/public/Daniyal hashmi-whistle.pdf"
+    pdf: "/Daniyalhashmiwhistle.pdf"
   },
   {
     title: "House Modelling",
     desc: "Architectural CAD modelling and spatial design.",
     icon: <Home size={24} />,
-    pdf: "/public/HouseRenovationProposal.pdf"
+    pdf: "/HouseRenovationProposal.pdf"
   },
   {
     title: "3D Scan Turntable",
     desc: "A 3D printed turntable designed to assist in photogrammetry.",
     icon: <Disc size={24} />,
-    pdf: "/public/Daniyal hashmi-IDS.pdf"
+    pdf: "/DaniyalhashmiIDS.pdf"
   }
 ];
 
