@@ -348,7 +348,7 @@ const designEvolutionData = [
     title: "Final Design & Planning",
     description: "The final design (Prototype 3) integrated a 6-wheel centering chassis for the head to stabilize the scratch tool that could be retracted or extend as using a mechanical wire. This ensures the tool applies even pressure regardless of orientation. To ensure successful delivery, I developed a comprehensive Gantt Chart outlining a 121 days implementation plan, identifying the critical path from regulatory validation to final marketing and launch.",
     images: [
-      { src: "/PipeEndoscope_Proto3_View2.png", title: "Final Design", desc: "Transparent view of the final head chassis. This mechanism ensures the scratch tool remains centered in the pipe." },
+      { src: "/PipeEndoscope_Proto3_View2.png", title: "Final Design", desc: "Transparent view of the final  head chassis. This mechanism ensures the scratch tool remains centered in the pipe." },
       { src: "/GanttChart.png", title: "My Project Management", desc: "I created this Gantt Chart to map our Critical Path (121.5 days), managing dependencies between R&D, procurement, and testing." }
     ]
   }
@@ -706,7 +706,7 @@ const ProjectsGallery = ({ onSelectProject, onViewPdf }) => {
             </div>
             <div className="pt-4">
               <span className="inline-flex items-center gap-2 text-white font-bold group-hover:translate-x-2 transition-transform">
-                View Case Study <ArrowRight size={20} />
+                Click to View! <ArrowRight size={20} />
               </span>
             </div>
           </div>
@@ -1390,7 +1390,6 @@ export default function DaniyalPortfolio() {
 
       <footer className="py-10 text-center text-slate-400 text-sm border-t border-slate-200/50 bg-white/50 backdrop-blur-md relative z-10">
         <p className="mb-2">© 2025 Daniyal Hashmi</p>
-        <p>APSC 169 • School of Engineering • UBC Okanagan</p>
       </footer>
     </div>
   );
